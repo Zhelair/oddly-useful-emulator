@@ -21,7 +21,8 @@
     tipPcFocus: "ou_tip_pc_focus",
     tipPcRun: "ou_tip_pc_run",
     tipPcGolden: "ou_tip_pc_golden",
-  };
+    ,aiguideSection:"ou_aiguide_section"
+};
 
   // House-key limits (client-side display; server-side enforcement is done by the Worker)
   const sofiaDateKey = ()=>{
@@ -184,7 +185,7 @@
       const ok = premiumPassphrases.some(p=>String(p).trim()===v);
       if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
       localStorage.setItem(LS.premiumUnlocked,"1");
-      localStorage.setItem(LS.premiumPass, pass);
+      localStorage.setItem(LS.premiumPass, passphrase);
       status.textContent="✅ Premium enabled for this browser.";
       setTimeout(()=>initBuddy("a"), 450);
     };

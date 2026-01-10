@@ -154,42 +154,7 @@
 </template>
 
 <template id="tpl-content-aiguide-overview">
-  <div class="aiguide">
-    <article class="card">
-      <div class="card__body">
-        <h2 class="card__title">How to Be Friends with AI (Without Losing Your Mind)</h2>
-        <p class="card__desc">A calm, practical guide to working with AI like an adult: clear goals, clean prompts, and fewer messes.</p>
-
-        <div class="tips">
-          <section class="tips__box">
-            <h3 class="tips__title">Do</h3>
-            <ul class="tips__list">
-              <li>Talk to it like a teammate: say <em>thanks</em>, use 👍 when it nails it.</li>
-              <li>State one goal per chat. Add constraints (format, length, tone, deadline).</li>
-              <li>Lock decisions first. Use <strong>DEPLOY</strong> only when you’re ready to build.</li>
-              <li>Paste screenshots + a 1‑sentence question: “What exactly is broken?”</li>
-              <li>Write clean grammar — less ambiguity, fewer weird detours.</li>
-            </ul>
-          </section>
-          <section class="tips__box tips__box--dont">
-            <h3 class="tips__title">Don’t</h3>
-            <ul class="tips__list">
-              <li>Don’t rage‑quit in the chat (“I’ll close this project”). It will take you seriously. 😄</li>
-              <li>Don’t ask for 12 unrelated things at once. You’ll get 12 half‑answers.</li>
-              <li>Don’t dump huge code unless needed. Ask for a <em>zip / patch</em> instead.</li>
-              <li>Don’t be rude. It won’t cry… but your results might.</li>
-            </ul>
-          </section>
-        </div>
-
-        <p class="card__note"><strong>About BYO‑Key:</strong> later, Prompting Buddy can run “inside this site” using <em>your</em> API key (stored only in your browser). For now it helps you generate and copy better prompts.</p>
-        <div class="card__actions">
-          <button class="btn btn--primary" data-guide="buddy" type="button">Open Prompting Buddy</button>
-          <button class="btn" data-route="about" type="button">Support / About</button>
-        </div>
-      </div>
-    </article>
-  </div>
+  <div id="aiguide-main"></div>
 </template>
 
 <template id="tpl-content-aiguide-buddy">
@@ -460,5 +425,206 @@
 
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
+
+<template id="tpl-aiguide-start">
+  <div class="card">
+    <h2>How to Be Friends with AI (Without Losing Your Mind)</h2>
+    <p class="muted">A calm, practical guide to working with AI like an adult: clear goals, clean prompts, fewer messes.</p>
+
+    <div class="grid2">
+      <div class="box">
+        <div class="boxTitle">DO</div>
+        <ul>
+          <li>Talk to it like a teammate: say <em>thanks</em>, use 👍 when it nails it.</li>
+          <li><strong>One goal per chat.</strong> Add constraints (format, length, tone, deadline).</li>
+          <li>Lock decisions first. Use <strong>DEPLOY</strong> only when you’re ready to build.</li>
+          <li>Paste screenshots + a 1‑sentence question: “What exactly is broken?”</li>
+          <li>Write clean grammar — less ambiguity, fewer weird detours.</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <div class="boxTitle">DON’T</div>
+        <ul>
+          <li>Don’t rage‑quit in the chat (“I’ll close this project”). It will take you seriously. 😅</li>
+          <li>Don’t ask for 12 unrelated things at once. You’ll get 12 half‑answers.</li>
+          <li>Don’t dump huge code unless needed. Ask for a <em>zip / patch</em> instead.</li>
+          <li>Don’t be rude. It won’t cry… but your results might.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Quick idea:</strong> Treat AI like a new friend. Small praise, clear asks, calm tone. It keeps the session “helpful,” not “defensive.”
+    </div>
+
+    <div class="row">
+      <button class="btnPrimary" onclick="window.location.hash='#aiguide'; localStorage.setItem('ou_aiguide_section','buddy');">Open Prompting Buddy</button>
+      <button class="btn" onclick="window.location.hash='#about'">Support / About</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-aiguide-hygiene">
+  <div class="card">
+    <h2>Hygiene</h2>
+    <p class="muted">Boring name. Massive payoff.</p>
+
+    <h3>1) Keep the vibe human</h3>
+    <ul>
+      <li>Say “thanks” when it helps. Use 👍 for good output. (Yes, it matters.)</li>
+      <li>If it misses: “Close — here’s what to fix” beats “this is garbage.”</li>
+      <li>Your “Tiger / Lion / Cheetah” tone trick is real: it keeps momentum and reduces friction.</li>
+    </ul>
+
+    <h3>2) Keep the chat clean</h3>
+    <ul>
+      <li>No dramatic lines like “I’ll close this project” — the AI may start helping you <em>close</em> it.</li>
+      <li>Don’t paste walls of code unless you’re debugging a specific issue.</li>
+      <li>Prefer: “Here’s the error + screenshot + what I expected.”</li>
+    </ul>
+
+    <h3>3) Language hygiene</h3>
+    <ul>
+      <li>Better grammar = fewer misreads.</li>
+      <li>Use bullet points for constraints.</li>
+      <li>When you paste screenshots: add a 1‑sentence question.</li>
+    </ul>
+  </div>
+</template>
+
+<template id="tpl-aiguide-golden">
+  <div class="card">
+    <h2>Golden Rules</h2>
+    <p class="muted">The rules that saved us hours while building real projects.</p>
+
+    <h3>One‑goal rule</h3>
+    <p>One chat = one goal. If you switch goals, start a new chat (or clearly say “new task”).</p>
+
+    <h3>DEPLOY‑gated execution</h3>
+    <ul>
+      <li>Planning first. Decisions locked.</li>
+      <li>No code dumps until you type <strong>DEPLOY</strong>.</li>
+      <li>Ask for a .zip / patch instead of raw code in chat.</li>
+    </ul>
+
+    <h3>Show the target</h3>
+    <ul>
+      <li>“Here’s what I see” (screenshot)</li>
+      <li>“Here’s what I expected”</li>
+      <li>“Here’s what changed since yesterday”</li>
+    </ul>
+  </div>
+</template>
+
+<template id="tpl-aiguide-south">
+  <div class="card">
+    <h2>When it goes South</h2>
+    <p class="muted">Stuck, annoyed, nothing works. Do this instead of spiraling.</p>
+
+    <ol>
+      <li><strong>Reset the question:</strong> “What exact output do we want?”</li>
+      <li><strong>Give one reproduction step:</strong> “Click X → error Y.”</li>
+      <li><strong>Paste the error text.</strong> Screenshots help, but text is king.</li>
+      <li><strong>Stop scope creep:</strong> park extra ideas in a list titled “Later.”</li>
+      <li><strong>Ask for the next smallest step.</strong> Not the whole universe.</li>
+    </ol>
+
+    <div class="note">If you feel the urge to type “this is hopeless”… drink water, then write one clean sentence. 😄</div>
+  </div>
+</template>
+
+<template id="tpl-aiguide-patterns">
+  <div class="card">
+    <h2>Patterns</h2>
+    <p class="muted">Reusable patterns we keep using across coding, writing, video, and prompts.</p>
+
+    <h3>The 4‑line brief</h3>
+    <ul>
+      <li>Goal</li>
+      <li>Audience / user</li>
+      <li>Constraints (format, length, tone, deadline)</li>
+      <li>Definition of “done”</li>
+    </ul>
+
+    <h3>The “Diff” pattern</h3>
+    <p>When something breaks: show what changed since it last worked (files, settings, versions).</p>
+
+    <h3>The “Golden prompt” pattern</h3>
+    <p>Ask the AI to first ask clarifying questions, then propose options, then wait for your <strong>DEPLOY</strong>.</p>
+  </div>
+</template>
+
+<template id="tpl-aiguide-playbooks">
+  <div class="card">
+    <h2>Playbooks</h2>
+    <p class="muted">Copy‑paste workflows. Fast, calm, repeatable.</p>
+
+    <h3>Coding (bug)</h3>
+    <pre class="pre">Goal: fix X
+Where: page/screen
+Steps to reproduce:
+1) ...
+Expected:
+Actual:
+Errors (copy text):
+Constraints: keep UI same / no new deps
+DEPLOY? (yes/no)</pre>
+
+    <h3>Midjourney / visuals</h3>
+    <pre class="pre">Subject + mood
+Style refs
+Aspect ratio + constraints
+What to avoid (no…)
+3 variations</pre>
+
+    <h3>CapCut / edit</h3>
+    <pre class="pre">Platform (TikTok/YouTube)
+Length
+Hook text
+Music mood
+CTA
+Export settings</pre>
+  </div>
+</template>
+
+<template id="tpl-aiguide-examples">
+  <div class="card">
+    <h2>Examples</h2>
+    <p class="muted">Bad → Better → Golden. Pick a lane.</p>
+
+    <div class="exampleCard bad">
+      <div class="exTitle">❌ Bad</div>
+      <div class="exBody">I have an idea for an app. Can you help me build it?</div>
+    </div>
+
+    <div class="exampleCard ok">
+      <div class="exTitle">⚠️ Improved</div>
+      <div class="exBody">I want to build a productivity app. Suggest features and a UI.</div>
+    </div>
+
+    <div class="exampleCard good">
+      <div class="exTitle">🟡 Golden</div>
+      <div class="exBody">
+        I want to explore an app idea. Before suggesting features:<br>
+        • ask 5 clarifying questions<br>
+        • help me define the core problem<br>
+        • identify what this app is NOT<br>
+        Do not suggest UI or features yet.
+      </div>
+    </div>
+
+    <p class="muted">More examples coming: “write a book”, “edit a script”, “write an essay”, “fix this UI”, “make a pitch deck”.</p>
+  </div>
+</template>
+
+<template id="tpl-aiguide-buddy">
+  <div class="card">
+    <h2>Prompting Buddy</h2>
+    <p class="muted">This is the paid tool. It helps you generate prompts and (optionally) run Prompt Check using an API key.</p>
+    <p>Open it from the menu, unlock with your passphrase, then use Prompt Check v1 to clean prompts before you spend time running them.</p>
+  </div>
+</template>
+
 </body>
 </html>
