@@ -147,14 +147,26 @@
       <button class="menu__item menu__item--mini" data-route="about" type="button">About</button>
     </div>
     <div class="menu__sep"></div>
-    <button class="menu__item is-active" data-guide="overview" type="button">Overview</button>
+
+    <button class="menu__item" data-guide="start" type="button">Start Here</button>
+    <button class="menu__item" data-guide="hygiene" type="button">Hygiene</button>
+    <button class="menu__item" data-guide="golden" type="button">Golden Rules</button>
+    <button class="menu__item" data-guide="south" type="button">When it goes South</button>
+    <button class="menu__item" data-guide="patterns" type="button">Patterns</button>
+    <button class="menu__item" data-guide="playbooks" type="button">Playbooks</button>
+    <button class="menu__item" data-guide="examples" type="button">Examples</button>
+
+    <div class="menu__sep"></div>
     <button class="menu__item" data-guide="buddy" type="button">Prompting Buddy</button>
-    <div class="menu__hint">Friendly peer</div>
+    <div class="menu__hint">Pick a section</div>
   </div>
 </template>
 
 <template id="tpl-content-aiguide-overview">
-  <div id="aiguide-main"></div>
+  <div class="aiguide">
+    <div class="aiguide__mobile" id="aiguideMobile"></div>
+    <div id="aiguide-main"></div>
+  </div>
 </template>
 
 <template id="tpl-content-aiguide-buddy">

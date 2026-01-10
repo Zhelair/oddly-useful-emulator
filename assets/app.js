@@ -60,6 +60,54 @@
     about:{menu:"tpl-menu-about", content:"tpl-content-about"},
   };
 
+
+  const isMobile = ()=> window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
+
+  const AIGUIDE_SECTIONS = [
+    { key:"start",   title:"Start Here",           tpl:"tpl-aiguide-start" },
+    { key:"hygiene", title:"Hygiene",              tpl:"tpl-aiguide-hygiene" },
+    { key:"golden",  title:"Golden Rules",         tpl:"tpl-aiguide-golden" },
+    { key:"south",   title:"When it goes South",   tpl:"tpl-aiguide-south" },
+    { key:"patterns",title:"Patterns",             tpl:"tpl-aiguide-patterns" },
+    { key:"playbooks",title:"Playbooks",           tpl:"tpl-aiguide-playbooks" },
+    { key:"examples",title:"Examples",             tpl:"tpl-aiguide-examples" }
+  ];
+
+  function getAIGuideSection(){
+    const k = (localStorage.getItem(LS.aiguideSection) || "start").trim();
+    return AIGUIDE_SECTIONS.some(s=>s.key===k) ? k : "start";
+  }
+
+  function setAIGuideActive(sectionKey){
+    // highlight left menu buttons (desktop)
+    document.querySelectorAll("[data-guide]").forEach(b=>{
+      const k = b.dataset.guide;
+      b.classList.toggle("is-active", k === sectionKey);
+    });
+  }
+
+  function renderAIGuideMobileNav(activeKey){
+    const host = document.getElementById("aiguideMobile");
+    if(!host) return;
+    if(!isMobile()){ host.innerHTML=""; return; }
+    host.innerHTML = `
+      <div class="menu__scroll" style="display:flex; gap:8px; overflow:auto; padding:4px 2px;">
+        ${AIGUIDE_SECTIONS.map(s=>`<button class="btn" data-guide="${s.key}" type="button">${escapeHtml(s.title)}</button>`).join("")}
+        <button class="btn btn--primary" data-guide="buddy" type="button">Buddy</button>
+      </div>
+    `;
+  }
+
+  function openAIGuideSection(sectionKey){
+    const main = document.getElementById("aiguide-main");
+    if(!main) return;
+    const sec = AIGUIDE_SECTIONS.find(s=>s.key===sectionKey) || AIGUIDE_SECTIONS[0];
+    load(main, sec.tpl);
+    localStorage.setItem(LS.aiguideSection, sec.key);
+    setAIGuideActive(sec.key);
+    renderAIGuideMobileNav(sec.key);
+  }
+
   function load(tgt, id){
     const tpl = document.getElementById(id);
     tgt.innerHTML = "";
@@ -156,7 +204,8 @@
 
   // AI GUIDE
   function initAIGuide(){
-    // overview buttons handled by global click
+    const sec = getAIGuideSection();
+    openAIGuideSection(sec);
   }
   function openBuddy(){
     load(screenContent,"tpl-content-aiguide-buddy");
@@ -185,7 +234,7 @@
       const ok = premiumPassphrases.some(p=>String(p).trim()===v);
       if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
       localStorage.setItem(LS.premiumUnlocked,"1");
-      localStorage.setItem(LS.premiumPass, passphrase);
+      localStorage.setItem(LS.premiumPass, v);
       status.textContent="✅ Premium enabled for this browser.";
       setTimeout(()=>initBuddy("a"), 450);
     };
@@ -572,7 +621,14 @@
     const r=e.target.closest("[data-route]");
     if(r){ e.preventDefault(); navigate(r.dataset.route); return; }
     const g=e.target.closest("[data-guide]");
-    if(g){ e.preventDefault(); if(g.dataset.guide==="buddy") openBuddy(); if(g.dataset.guide==="overview") navigate("aiguide"); return; }
+    if(g){
+      e.preventDefault();
+      const k = g.dataset.guide;
+      if(k==="buddy") { openBuddy(); return; }
+      if(k==="overview") { navigate("aiguide"); return; }
+      if(AIGUIDE_SECTIONS.some(s=>s.key===k)) { openAIGuideSection(k); return; }
+      return;
+    }
   });
 
   function escapeHtml(s){

@@ -121,11 +121,12 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
 
   .screen__ui{
     grid-template-columns:1fr;
+    grid-template-rows:auto 1fr;
     padding:10px;
     gap:10px;
     height:100%;
   }
-  .screen__menu{display:none}
+  .screen__menu{display:block; max-height:220px; overflow:auto;}
 
   /* Single scroll area: content */
   .screen__content{
