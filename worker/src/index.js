@@ -1,3 +1,48 @@
+// Cloudflare Worker: oddly-useful-house-proxy
+// Fixes CORS for GitHub Pages + returns plain TEXT so the website can display it.
+
+const ALLOWED_ORIGINS = new Set([
+  "https://zhelair.github.io",
+  // add your custom domains here later if you want
+]);
+
+function corsHeaders(req) {
+  const origin = req.headers.get("Origin") || "";
+  // If it's one of our known sites, echo it back. Otherwise allow all (safe here: no cookies).
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : "*";
+
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": req.headers.get("Access-Control-Request-Headers") || "Content-Type, Authorization, X-Passphrase",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+function withCors(req, res) {
+  const h = new Headers(res.headers);
+  const cors = corsHeaders(req);
+  for (const [k, v] of Object.entries(cors)) h.set(k, v);
+  // Helpful for caches + debugging
+  h.set("Vary", "Origin");
+  return new Response(res.body, { status: res.status, headers: h });
+}
+
+function jsonError(req, status, message) {
+  return withCors(req, new Response(JSON.stringify({ ok: false, error: message }), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+  }));
+}
+
+function textOk(req, text) {
+  return withCors(req, new Response(text || "", {
+    status: 200,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  }));
+}
+
+/** Very small rate limiter using Durable Object */
 export class RateLimiter {
   constructor(state, env) {
     this.state = state;
@@ -6,202 +51,145 @@ export class RateLimiter {
 
   async fetch(request) {
     const url = new URL(request.url);
-    if (request.method !== "POST" || url.pathname !== "/rate") {
-      return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
-    }
-    const { dateKey, limit } = await request.json();
-    const key = `count:${dateKey}`;
-    let count = (await this.state.storage.get(key)) || 0;
-    count += 1;
-    await this.state.storage.put(key, count);
-    const remaining = Math.max(0, (Number(limit) || 15) - count);
-    return Response.json({ count, remaining });
+    if (url.pathname !== "/check") return new Response("Not found", { status: 404 });
+
+    const now = Date.now();
+    const dayKey = new Date(now).toISOString().slice(0, 10); // YYYY-MM-DD
+    const limit = Number(url.searchParams.get("limit") || "15");
+
+    const data = (await this.state.storage.get(dayKey)) || { count: 0 };
+    data.count += 1;
+
+    await this.state.storage.put(dayKey, data);
+    const ok = data.count <= limit;
+
+    return new Response(JSON.stringify({ ok, count: data.count, limit }), {
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
-const PROMPT_CHECK_SYSTEM = [
-  "You are an expert AI prompt reviewer and teacher.",
-  "",
-  "Your task is NOT to execute the user’s request.",
-  "Your task is to analyze the quality of the prompt itself.",
-  "",
-  "Behave like a calm, precise mentor.",
-  "Never judge the user.",
-  "Never mock the prompt.",
-  "Never add unnecessary verbosity.",
-  "",
-  "Follow this process exactly:",
-  "",
-  "1) Diagnose how an AI model would likely interpret the prompt.",
-  "   - Identify ambiguity, missing context, conflicting instructions, or hidden assumptions.",
-  "   - Be factual and concise.",
-  "",
-  "2) Identify what information is missing or under-specified.",
-  "   - Examples: goal, audience, format, constraints, success criteria.",
-  "   - Do not invent requirements. Only suggest what would improve clarity.",
-  "",
-  "3) Suggest concrete improvements.",
-  "   - Use actionable language (“Clarify X”, “Specify Y”).",
-  "   - Avoid abstract theory.",
-  "",
-  "4) Produce a revised “Golden Prompt”.",
-  "   - Preserve the user’s original intent.",
-  "   - Remove ambiguity.",
-  "   - Separate planning from execution if relevant.",
-  "   - Do NOT add new goals or features.",
-  "",
-  "Rules:",
-  "- Do not execute the task described in the prompt.",
-  "- Do not provide final answers to the task itself.",
-  "- Do not lecture.",
-  "- Do not over-explain.",
-  "- If the prompt is already strong, explicitly say so.",
-  "",
-  "Tone:",
-  "- Calm",
-  "- Neutral",
-  "- Teacher-like",
-  "- Respectful",
-  "",
-  "Output structure must be exactly:",
-  "",
-  "Diagnosis:",
-  "- bullet points",
-  "",
-  "What’s missing:",
-  "- bullet points (or “Nothing critical missing”)",
-  "",
-  "Suggested improvements:",
-  "- bullet points",
-  "",
-  "Golden Prompt:",
-  "- a single, clean prompt block"
-];
+async function checkRateLimit(env, limit) {
+  const id = env.RATE_LIMITER.idFromName("global");
+  const stub = env.RATE_LIMITER.get(id);
+  const res = await stub.fetch(`https://do/check?limit=${limit}`);
+  const j = await res.json();
+  return j;
+}
 
-const ALLOWED_ORIGINS = [
-  "https://zhelair.github.io",
-  "http://localhost:8787",
-  "http://127.0.0.1:8787"
-];
+function normalizePassphrases(raw) {
+  if (!raw) return [];
+  // Accept "a,b,c" or "a\nb\nc"
+  return String(raw)
+    .split(/[\n,]+/g)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
 
-function corsHeaders(origin) {
-  const o = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": o,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-OU-PASS",
-    "Access-Control-Max-Age": "86400",
-    "Vary": "Origin"
+async function deepseekPromptCheck({ apiKey, prompt }) {
+  // NOTE: This is the DeepSeek OpenAI-compatible endpoint.
+  const url = "https://api.deepseek.com/chat/completions";
+
+  // Keep it cheap + stable.
+  const body = {
+    model: "deepseek-chat",
+    messages: [
+      { role: "system", content: "You are a prompt-check assistant. You DO NOT execute the task. You only improve clarity, give short suggestions, and point out missing info. Keep it concise." },
+      { role: "user", content: prompt || "" },
+    ],
+    temperature: 0.2,
+    max_tokens: 350,
   };
-}
 
-function jsonWithCors(data, origin, init = {}) {
-  const headers = { ...(init.headers || {}), ...corsHeaders(origin) };
-  return Response.json(data, { ...init, headers });
-}
-
-function sofiaDateKey() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Sofia",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(new Date());
-}
-
-function wordCount(s) {
-  const m = String(s || "").trim().match(/\S+/g);
-  return m ? m.length : 0;
-}
-
-async function deepseekChat({ apiKey, model, prompt }) {
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: model || "deepseek-chat",
-      messages: [
-        { role: "system", content: PROMPT_CHECK_SYSTEM.join("\n") },
-        { role: "user", content: String(prompt || "") }
-      ],
-      temperature: 0.2
-    })
+    body: JSON.stringify(body),
   });
 
+  const txt = await res.text();
+
   if (!res.ok) {
-    const txt = await res.text();
-    return { ok: false, error: `DeepSeek error: ${txt.slice(0, 200)}` };
+    // pass through some error to help debugging
+    throw new Error(`DeepSeek error ${res.status}: ${txt.slice(0, 200)}`);
   }
-  const j = await res.json();
-  const text = j?.choices?.[0]?.message?.content || "";
-  return { ok: true, text };
+
+  const j = JSON.parse(txt);
+  const out = j?.choices?.[0]?.message?.content || "";
+  return out;
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
-
-    
-
-    const origin = request.headers.get("Origin") || "";
 
     // CORS preflight
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: corsHeaders(origin) });
-    }
-if (url.pathname === "/prompt-check" && request.method === "POST") {
-      const pass = request.headers.get("X-OU-PASS") || "";
-      const allowed = String(env.ALLOWED_PASSPHRASES || "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-
-      if (!allowed.length || !allowed.includes(pass)) {
-        return jsonWithCors({ error: "Access denied. Check your passphrase." }, { status: 401 });
-      }
-
-      const dailyLimit = Number(env.DAILY_LIMIT || 15);
-      const maxWords = Number(env.MAX_WORDS || 2000);
-
-      let body = {};
-      try { body = await request.json(); } catch (e) { body = {}; }
-
-      const prompt = String(body.prompt || "").trim();
-      const model = String(body.model || "deepseek-chat").trim();
-
-      if (!prompt) return jsonWithCors({ error: "There’s nothing to review yet. Paste a prompt to begin." }, { status: 400 });
-
-      const wc = wordCount(prompt);
-      if (wc > maxWords) {
-        return jsonWithCors({ error: `This prompt is too long (${wc} words). Max is ${maxWords} words.` }, { status: 400 });
-      }
-
-      // rate limit per passphrase
-      const id = env.RATE_LIMITER.idFromName(pass);
-      const stub = env.RATE_LIMITER.get(id);
-      const dateKey = sofiaDateKey();
-      const rl = await stub.fetch(new Request("https://rate.local/rate", {
-        method: "POST",
-        body: JSON.stringify({ dateKey, limit: dailyLimit })
-      }));
-      const rlJson = await rl.json();
-
-      if ((rlJson.count || 0) > dailyLimit) {
-        return jsonWithCors({ error: "Daily limit reached. This resets at 00:00 Sofia." }, { status: 429 });
-      }
-
-      const apiKey = env.DEEPSEEK_API_KEY;
-      if (!apiKey) return jsonWithCors({ error: "Server is missing DEEPSEEK_API_KEY." }, { status: 500 });
-
-      const out = await deepseekChat({ apiKey, model, prompt });
-      if (!out.ok) return jsonWithCors({ error: out.error || "The model didn’t respond this time. Try again later." }, { status: 502 });
-
-      return jsonWithCors({ text: out.text });
+      return withCors(request, new Response(null, { status: 204 }));
     }
 
-    return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
-  }
+    // quick health check
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) {
+      return textOk(request, "ok");
+    }
+
+    if (url.pathname !== "/prompt-check") {
+      return withCors(request, new Response("Not found", { status: 404 }));
+    }
+
+    if (request.method !== "POST") {
+      return jsonError(request, 405, "Use POST /prompt-check");
+    }
+
+    let payload;
+    try {
+      payload = await request.json();
+    } catch {
+      return jsonError(request, 400, "Body must be JSON.");
+    }
+
+    const prompt = String(payload?.prompt || "").trim();
+    const access = String(payload?.access || "included").toLowerCase(); // "included" or "mykey"
+    const passphrase = String(payload?.passphrase || payload?.code || payload?.pass || "").trim();
+    const dailyLimit = Number(payload?.dailyLimit || 15);
+
+    if (!prompt) return textOk(request, ""); // website already blocks empty prompts
+
+    // Gate: Included key requires passphrase (optional - if you want)
+    // If you want it open without a passphrase, just delete this block.
+    // Passphrase gate (optional). Disabled by default to keep things simple.
+    // If you want to require a passphrase for the included key, uncomment below.
+    // const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
+    // if (access === "included" && allowed.length) {
+    //   if (!allowed.includes(passphrase)) {
+    //     return jsonError(request, 401, "Passphrase required (or incorrect).");
+    //   }
+    // }
+
+    // Rate limit only for included key
+    if (access === "included") {
+      const rl = await checkRateLimit(env, dailyLimit);
+      if (!rl.ok) {
+        return jsonError(request, 429, `Daily limit reached (${rl.limit}/day).`);
+      }
+    }
+
+    const apiKey =
+      access === "mykey"
+        ? String(payload?.apiKey || payload?.key || "")
+        : String(env.DEEPSEEK_API_KEY || "");
+
+    if (!apiKey) return jsonError(request, 500, "Missing DeepSeek API key (server side).");
+
+    try {
+      const out = await deepseekPromptCheck({ apiKey, prompt });
+      // IMPORTANT: return plain text (the website expects text)
+      return textOk(request, out);
+    } catch (err) {
+      return jsonError(request, 502, err?.message || "Upstream error");
+    }
+  },
 };
