@@ -7,7 +7,7 @@ export class RateLimiter {
   async fetch(request) {
     const url = new URL(request.url);
     if (request.method !== "POST" || url.pathname !== "/rate") {
-      return new Response("Not found", { status: 404 });
+      return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
     }
     const { dateKey, limit } = await request.json();
     const key = `count:${dateKey}`;
@@ -78,6 +78,28 @@ const PROMPT_CHECK_SYSTEM = [
   "- a single, clean prompt block"
 ];
 
+const ALLOWED_ORIGINS = [
+  "https://zhelair.github.io",
+  "http://localhost:8787",
+  "http://127.0.0.1:8787"
+];
+
+function corsHeaders(origin) {
+  const o = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": o,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-OU-PASS",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin"
+  };
+}
+
+function jsonWithCors(data, origin, init = {}) {
+  const headers = { ...(init.headers || {}), ...corsHeaders(origin) };
+  return Response.json(data, { ...init, headers });
+}
+
 function sofiaDateKey() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Sofia",
@@ -122,7 +144,15 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/prompt-check" && request.method === "POST") {
+    
+
+    const origin = request.headers.get("Origin") || "";
+
+    // CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    }
+if (url.pathname === "/prompt-check" && request.method === "POST") {
       const pass = request.headers.get("X-OU-PASS") || "";
       const allowed = String(env.ALLOWED_PASSPHRASES || "")
         .split(",")
@@ -130,7 +160,7 @@ export default {
         .filter(Boolean);
 
       if (!allowed.length || !allowed.includes(pass)) {
-        return Response.json({ error: "Access denied. Check your passphrase." }, { status: 401 });
+        return jsonWithCors({ error: "Access denied. Check your passphrase." }, { status: 401 });
       }
 
       const dailyLimit = Number(env.DAILY_LIMIT || 15);
@@ -142,11 +172,11 @@ export default {
       const prompt = String(body.prompt || "").trim();
       const model = String(body.model || "deepseek-chat").trim();
 
-      if (!prompt) return Response.json({ error: "There’s nothing to review yet. Paste a prompt to begin." }, { status: 400 });
+      if (!prompt) return jsonWithCors({ error: "There’s nothing to review yet. Paste a prompt to begin." }, { status: 400 });
 
       const wc = wordCount(prompt);
       if (wc > maxWords) {
-        return Response.json({ error: `This prompt is too long (${wc} words). Max is ${maxWords} words.` }, { status: 400 });
+        return jsonWithCors({ error: `This prompt is too long (${wc} words). Max is ${maxWords} words.` }, { status: 400 });
       }
 
       // rate limit per passphrase
@@ -160,18 +190,18 @@ export default {
       const rlJson = await rl.json();
 
       if ((rlJson.count || 0) > dailyLimit) {
-        return Response.json({ error: "Daily limit reached. This resets at 00:00 Sofia." }, { status: 429 });
+        return jsonWithCors({ error: "Daily limit reached. This resets at 00:00 Sofia." }, { status: 429 });
       }
 
       const apiKey = env.DEEPSEEK_API_KEY;
-      if (!apiKey) return Response.json({ error: "Server is missing DEEPSEEK_API_KEY." }, { status: 500 });
+      if (!apiKey) return jsonWithCors({ error: "Server is missing DEEPSEEK_API_KEY." }, { status: 500 });
 
       const out = await deepseekChat({ apiKey, model, prompt });
-      if (!out.ok) return Response.json({ error: out.error || "The model didn’t respond this time. Try again later." }, { status: 502 });
+      if (!out.ok) return jsonWithCors({ error: out.error || "The model didn’t respond this time. Try again later." }, { status: 502 });
 
-      return Response.json({ text: out.text });
+      return jsonWithCors({ text: out.text });
     }
 
-    return new Response("Not found", { status: 404 });
+    return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
   }
 };
