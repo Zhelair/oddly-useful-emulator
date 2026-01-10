@@ -113,7 +113,7 @@ window.OU_DATA = {
     }
   ],
   house: {
-    endpoint: "",
+    endpoint: "https://oddly-useful-house-proxy.nik-sales-737.workers.dev",
     dailyLimit: 15,
     maxWords: 2000,
     timezone: "Europe/Sofia"
