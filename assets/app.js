@@ -20,8 +20,8 @@
     tipPcOpened: "ou_tip_pc_opened",
     tipPcFocus: "ou_tip_pc_focus",
     tipPcRun: "ou_tip_pc_run",
-    tipPcGolden: "ou_tip_pc_golden",
-    ,aiguideSection:"ou_aiguide_section"
+	  tipPcGolden: "ou_tip_pc_golden",
+	  aiguideSection: "ou_aiguide_section"
 };
 
   // House-key limits (client-side display; server-side enforcement is done by the Worker)

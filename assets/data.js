@@ -68,11 +68,11 @@ window.OU_DATA = {
         "4) Iterate (small changes, one goal)"
       ],
       tags:["prompts","workflow","prompt-check"]
-    }]
-  house: {
+	    }],
+	  house: {
     endpoint: "",
     dailyLimit: 15,
     maxWords: 2000,
-    timezone: "Europe/Sofia",
-  },
+	    timezone: "Europe/Sofia"
+	  }
 };
