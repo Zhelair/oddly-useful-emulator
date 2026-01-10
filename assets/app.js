@@ -91,9 +91,9 @@
     if(!host) return;
     if(!isMobile()){ host.innerHTML=""; return; }
     host.innerHTML = `
-      <div class="menu__scroll" style="display:flex; gap:8px; overflow:auto; padding:4px 2px;">
-        ${AIGUIDE_SECTIONS.map(s=>`<button class="btn" data-guide="${s.key}" type="button">${escapeHtml(s.title)}</button>`).join("")}
+      <div class="aiguideTabs">
         <button class="btn btn--primary" data-guide="buddy" type="button">Buddy</button>
+        ${AIGUIDE_SECTIONS.map(s=>`<button class="btn ${s.key===activeKey?'is-active':''}" data-guide="${s.key}" type="button">${escapeHtml(s.title)}</button>`).join("")}
       </div>
     `;
   }

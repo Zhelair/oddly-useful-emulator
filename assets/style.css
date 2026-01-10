@@ -30,6 +30,8 @@ a{color:inherit}button,a.navbtn{font:inherit}
 .menu__item--mini{padding:7px 10px;font-size:13px}
 .menu__hint{margin-top:10px;font-size:12px;opacity:.7}
 .menu__sep{height:1px;background:rgba(0,0,0,.10);margin:10px 0}
+.aiguideTabs{display:flex;gap:10px;overflow:auto;padding:10px 6px;border-radius:14px;background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.08)}
+.aiguideTabs .btn{white-space:nowrap;flex:0 0 auto;padding:10px 14px}
 .menu__scroll{max-height:calc(100% - 54px);overflow:auto;padding-right:6px}
 .home__pressstart{display:grid;place-items:center;height:100%;font-weight:900;letter-spacing:.08em;color:rgba(0,0,0,.55);user-select:none;cursor:pointer}
 .home__headline{margin:0 0 6px;font-size:26px}
@@ -152,7 +154,19 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
   }
   .panels{grid-template-columns:1fr}
   .menu__scroll{max-height:none}
+
+  /* Bigger “popup” panels on mobile */
+  .screen__ui{padding:12px}
+  .screen__menu{padding:14px}
+  .screen__content{padding:16px}
+  .menu__item{font-size:15px}
+  .menu__item--mini{font-size:14px}
+  .panel{padding:14px}
+  .output--input{min-height:260px}
+
 }
 
 .pc__usage{font-size:12px;opacity:.82;margin:-6px 0 10px 0;}
 .settings__note{font-size:12px;opacity:.82;margin-top:8px;line-height:1.35;}
+
+.output--input{width:100%;min-height:220px;resize:vertical;overflow:auto;-webkit-overflow-scrolling:touch}
