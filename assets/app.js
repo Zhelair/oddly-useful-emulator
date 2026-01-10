@@ -47,7 +47,33 @@
   };
   const wordCount = (s)=> (String(s||"").trim().match(/\S+/g)||[]).length;
 
+  // HOUSE helper (calls your Cloudflare Worker)
+  const HOUSE = {
+    promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
+      const base = String(endpoint || "").replace(/\/+$/, ""); // remove trailing /
+      const url = base + "/prompt-check";
 
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-OU-PASS": String(passphrase || "")
+        },
+        body: JSON.stringify({
+          model: String(model || "deepseek-chat"),
+          prompt: String(userPrompt || "")
+        })
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json.error || `House error ${res.status}`);
+      }
+
+      if (!json.text) throw new Error("Empty response from House");
+      return String(json.text);
+    }
+  };
 
   document.getElementById("year").textContent = new Date().getFullYear();
   document.getElementById("footerSupport").href = supportUrl;
