@@ -47,33 +47,7 @@
   };
   const wordCount = (s)=> (String(s||"").trim().match(/\S+/g)||[]).length;
 
-  // HOUSE helper (calls your Cloudflare Worker)
-  const HOUSE = {
-    promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
-      const base = String(endpoint || "").replace(/\/+$/, ""); // remove trailing /
-      const url = base + "/prompt-check";
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-OU-PASS": String(passphrase || "")
-        },
-        body: JSON.stringify({
-          model: String(model || "deepseek-chat"),
-          prompt: String(userPrompt || "")
-        })
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json.error || `House error ${res.status}`);
-      }
-
-      if (!json.text) throw new Error("Empty response from House");
-      return String(json.text);
-    }
-  };
 
   document.getElementById("year").textContent = new Date().getFullYear();
   document.getElementById("footerSupport").href = supportUrl;
@@ -351,7 +325,7 @@
 
     // Access mode (BYO key vs House key)
     const syncAccessUI = ()=>{
-      const mode = localStorage.getItem(LS.aiAccess) || "byo";
+      const mode = localStorage.getItem(LS.aiAccess) || "house";
       if(accessSel) accessSel.value = mode;
       // keep About → Settings dropdown in sync if it exists
       const aboutSel = document.getElementById("aiAccess");
@@ -405,7 +379,7 @@
       err.textContent="";
       const prompt=(input?.value||"").trim();
       if(!prompt){ err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
-      const mode = (localStorage.getItem(LS.aiAccess)||"byo");
+      const mode = (localStorage.getItem(LS.aiAccess) || "house");
       const wc = wordCount(prompt);
       if(wc>HOUSE_MAX_WORDS){ err.textContent=`This prompt is too long (${wc} words). Max is ${HOUSE_MAX_WORDS} words.`; return; }
       let apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
@@ -423,7 +397,7 @@
       try{
         const model = (modelSel?.value||"deepseek-chat").trim();
         let text="";
-        if((localStorage.getItem(LS.aiAccess)||"byo")==="byo"){
+        if((localStorage.getItem(LS.aiAccess) || "house")==="byo"){
           text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
         }else{
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
@@ -634,7 +608,7 @@
     const key=document.getElementById("apiKey");
     const status=document.getElementById("settingsStatus");
     provider.value = localStorage.getItem("ou_ai_provider") || "openai";
-    access.value = localStorage.getItem(LS.aiAccess) || "byo";
+    access.value = localStorage.getItem(LS.aiAccess) || "house";
     key.value = localStorage.getItem("ou_ai_key") || "";
     provider.onchange=()=>{ localStorage.setItem("ou_ai_provider", provider.value); status.textContent=""; };
     key.oninput=()=>{ localStorage.setItem("ou_ai_key", key.value); status.textContent=""; };

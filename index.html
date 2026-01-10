@@ -342,9 +342,9 @@
         <div class="settings__row">
           <label for="pcAccess">Access</label>
           <select id="pcAccess">
-            <option value="byo">My API key</option>
-            <option value="house">Included key (15/day)</option>
-          </select>
+          <option selected value="house">Included key (15/day)</option>
+          <option value="byo">My API key</option>
+        </select>
         </div>
 <div class="settings__row">
           <label for="pcModel">AI model</label>
@@ -417,8 +417,8 @@
       <div class="settings__row">
         <label for="aiAccess">Access</label>
         <select id="aiAccess">
+          <option selected value="house">Use included DeepSeek key (15/day)</option>
           <option value="byo">Use my API key (recommended)</option>
-          <option value="house">Use included DeepSeek key (15/day)</option>
         </select>
       </div>
 
