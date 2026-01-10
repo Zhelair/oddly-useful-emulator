@@ -401,7 +401,7 @@
           text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
         }else{
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
-          text = await housePromptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
+          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
           incHouseUsage();
           updateUsageUI();
         }
