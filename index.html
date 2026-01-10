@@ -1,419 +1,333 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Oddly Useful — Emulator</title>
-  <link rel="stylesheet" href="assets/style.css" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Oddly Useful — Emulator</title>
+<link rel="stylesheet" href="assets/style.css"/>
 </head>
-
-<body class="theme-ps">
-  <div class="app" id="app">
-    <header class="topbar" id="topbar">
-      <div class="brand" id="brand">
-        <div class="brand__badge" aria-hidden="true">OU</div>
-        <div class="brand__text">
-          <div class="brand__name">Oddly Useful</div>
-          <div class="brand__tag">Emulator Console</div>
-        </div>
-      </div>
-
-      <nav class="topnav" id="topnav" aria-label="Primary navigation">
-        <button class="navbtn" data-route="home" type="button">Home</button>
-        <button class="navbtn" data-route="projects" type="button">Projects</button>
-        <button class="navbtn" data-route="posts" type="button">Posts</button>
-        <button class="navbtn" data-route="aiguide" type="button">AI Guide</button>
-        <button class="navbtn" data-route="about" type="button">About</button>
-      </nav>
-    </header>
-
-    <main class="console" id="console">
-      <section class="cabinet" id="cabinet" aria-label="Emulator cabinet">
-        <div class="screen" id="screen" role="region" aria-label="Arcade screen (4:3)">
-          <div class="screen__bg" id="screenBg" aria-hidden="true"></div>
-
-          <div class="screen__ui" id="screenUi">
-            <aside class="screen__menu" id="screenMenu" aria-label="Section menu"></aside>
-            <section class="screen__content" id="screenContent" aria-label="Main content"></section>
-          </div>
-        </div>
-        <div class="cabinet__base" aria-hidden="true"></div>
-      </section>
-    </main>
-
-    <footer class="footer" id="footer">
-      <span class="footer__copy">© <span id="year"></span> Oddly Useful</span>
-      <span class="footer__sep" aria-hidden="true">·</span>
-      <a class="footer__link" href="#about" data-route="about">About</a>
-      <span class="footer__sep" aria-hidden="true">·</span>
-      <a class="footer__link" href="#contact" data-route="about">Contact</a>
-      <span class="footer__sep" aria-hidden="true">·</span>
-      <a class="footer__link" href="#" id="supportLink" target="_blank" rel="noopener">Support ☕</a>
-    </footer>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand__badge">OU</div>
+    <div class="brand__text">
+      <div class="brand__name">Oddly Useful</div>
+      <div class="brand__tag">Emulator Console</div>
+    </div>
   </div>
+  <nav class="topnav" aria-label="Primary">
+    <button class="navbtn" data-route="home" type="button">Home</button>
+    <button class="navbtn" data-route="projects" type="button">Projects</button>
+    <button class="navbtn" data-route="posts" type="button">Posts</button>
+    <button class="navbtn" data-route="aiguide" type="button">AI Guide</button>
+    <button class="navbtn" data-route="about" type="button">About</button>
+  </nav>
+</header>
 
-  <!-- ====== TEMPLATES ====== -->
-  <template id="tpl-menu-home">
-    <div class="menu">
-      <div class="menu__title">MENU</div>
-      <button class="menu__item is-active" data-route="home" type="button">Home</button>
-      <button class="menu__item" data-route="projects" type="button">Projects</button>
-      <button class="menu__item" data-route="posts" type="button">Posts</button>
-      <button class="menu__item" data-route="aiguide" type="button">AI Guide</button>
-      <button class="menu__item" data-route="about" type="button">About</button>
-      <div class="menu__hint">Press START</div>
-    </div>
-  </template>
-
-  <template id="tpl-content-home">
-    <div class="home">
-      <div class="home__attract" id="homeAttract">
-        <div class="home__pressstart" id="pressStart" role="button" tabindex="0" aria-label="Press Start">
-          PRESS START
-        </div>
+<main class="console">
+  <section class="cabinet">
+    <div class="screen" role="region" aria-label="Arcade screen (4:3)">
+      <div class="screen__bg" aria-hidden="true"></div>
+      <div class="screen__ui">
+        <aside class="screen__menu" id="screenMenu"></aside>
+        <section class="screen__content" id="screenContent"></section>
       </div>
+    </div>
+  </section>
+</main>
 
-      <div class="home__active" id="homeActive" hidden>
-        <div class="home__featured">
+<footer class="footer">
+  <span>© <span id="year"></span> Oddly Useful</span>
+  <span class="footer__sep">·</span>
+  <a class="footer__link" href="#" data-route="about">About</a>
+  <span class="footer__sep">·</span>
+  <a class="footer__link" id="footerSupport" href="#" target="_blank" rel="noopener">Support ☕</a>
+</footer>
+
+<!-- templates -->
+<template id="tpl-menu-home">
+  <div class="menu">
+    <div class="menu__title">MENU</div>
+    <button class="menu__item is-active" data-route="home" type="button">Home</button>
+    <button class="menu__item" data-route="projects" type="button">Projects</button>
+    <button class="menu__item" data-route="posts" type="button">Posts</button>
+    <button class="menu__item" data-route="aiguide" type="button">AI Guide</button>
+    <button class="menu__item" data-route="about" type="button">About</button>
+    <div class="menu__hint">Press START</div>
+  </div>
+</template>
+
+<template id="tpl-content-home">
+  <div class="home">
+    <div class="home__attract" id="homeAttract">
+      <div class="home__pressstart" id="pressStart" role="button" tabindex="0">PRESS START</div>
+    </div>
+    <div class="home__active" id="homeActive" hidden>
+      <div class="home__lead">
+        <h2 class="home__headline">Oddly Useful</h2>
+        <p class="home__subhead">A retro-styled launcher for practical little tools: mood tracking, counters, cooking, and more.</p>
+      </div>
+      <article class="card" id="featuredCard">
+        <div class="card__body">
           <div class="featured__label">Featured today</div>
-
-          <article class="card featured__card" id="featuredCard">
-            <div class="card__media" id="featuredMedia" aria-hidden="true"></div>
-            <div class="card__body">
-              <h2 class="card__title" id="featuredTitle">Project Title</h2>
-              <p class="card__desc" id="featuredDesc">Short description…</p>
-              <div class="card__actions">
-                <a class="btn btn--primary" id="featuredLaunch" href="#" target="_blank" rel="noopener">Launch</a>
-                <button class="btn" id="featuredNext" type="button">Another</button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <template id="tpl-menu-projects">
-    <div class="menu">
-      <div class="menu__title">PROJECTS</div>
-      <div class="menu__scroll" id="projectsList" aria-label="Project list"></div>
-      <div class="menu__hint">↑ ↓ · Enter</div>
-    </div>
-  </template>
-
-  <template id="tpl-content-projects">
-    <div class="projects">
-      <article class="card project__detail" id="projectDetail">
-        <div class="card__body">
-          <h2 class="card__title">Select a project</h2>
-          <p class="card__desc">Pick one from the list on the left.</p>
-        </div>
-      </article>
-    </div>
-  </template>
-
-  <template id="tpl-menu-posts">
-    <div class="menu">
-      <div class="menu__title">POSTS</div>
-      <div class="menu__scroll" id="postsList" aria-label="Posts list"></div>
-      <div class="menu__hint">Drafts allowed</div>
-    </div>
-  </template>
-
-  <template id="tpl-content-posts">
-    <div class="posts">
-      <article class="card post__detail" id="postDetail">
-        <div class="card__body">
-          <h2 class="card__title">Select a post</h2>
-          <p class="card__desc">Pick one from the list on the left.</p>
-        </div>
-      </article>
-    </div>
-  </template>
-
-  <template id="tpl-menu-aiguide">
-    <div class="menu">
-      <div class="menu__title">AI GUIDE</div>
-      <button class="menu__item is-active" data-guide="overview" type="button">Overview</button>
-      <button class="menu__item" data-guide="buddy" type="button">Prompting Buddy</button>
-      <button class="menu__item" data-guide="modules" type="button">Modules</button>
-      <div class="menu__hint">Friendly peer</div>
-    </div>
-  </template>
-
-  <template id="tpl-content-aiguide-overview">
-    <div class="aiguide">
-      <article class="card guide__intro">
-        <div class="card__body">
-          <h2 class="card__title">How to Be Friends with AI (Without Losing Your Mind)</h2>
-          <p class="card__desc">
-            A calm, practical guide to working with AI like an adult: clear goals, clean prompts, and fewer messes.
-          </p>
+          <h2 class="card__title" id="featuredTitle">Project</h2>
+          <p class="card__desc" id="featuredDesc"></p>
           <div class="card__actions">
-            <button class="btn btn--primary" data-guide="buddy" type="button">Open Prompting Buddy</button>
+            <a class="btn btn--primary" id="featuredLaunch" href="#" target="_blank" rel="noopener">Launch</a>
+            <button class="btn" id="featuredNext" type="button">Another</button>
           </div>
         </div>
       </article>
     </div>
-  </template>
+  </div>
+</template>
 
-  <template id="tpl-content-aiguide-buddy">
-    <div class="buddy">
-      <div class="buddy__layout">
-        <aside class="buddy__modules" aria-label="Prompting Buddy modules">
-          <div class="buddy__title">Prompting Buddy</div>
-          <button class="buddy__mod is-active" data-module="a" type="button">Module A — Introduce Yourself</button>
-          <button class="buddy__mod" data-module="b" type="button">Module B — Golden Way</button>
-          <button class="buddy__mod" data-module="c" type="button">Module C — Golden Examples</button>
-          <button class="buddy__mod buddy__mod--disabled" type="button" disabled>Prompt Check (coming later)</button>
-        </aside>
+<template id="tpl-menu-projects">
+  <div class="menu">
+    <div class="menu__title">PROJECTS</div>
+    <div class="menu__scroll" id="projectsList"></div>
+    <div class="menu__hint">Tap a project</div>
+  </div>
+</template>
 
-        <section class="buddy__main" id="buddyMain" aria-label="Active module"></section>
+<template id="tpl-content-projects">
+  <div class="projects">
+    <article class="card" id="projectDetail">
+      <div class="card__body">
+        <h2 class="card__title">Select a project</h2>
+        <p class="card__desc">Pick one from the list on the left.</p>
       </div>
-    </div>
-  </template>
+    </article>
+  </div>
+</template>
 
-  <template id="tpl-content-aiguide-modules">
-    <div class="aiguide">
-      <article class="card">
-        <div class="card__body">
-          <h2 class="card__title">Modules</h2>
-          <p class="card__desc">
-            A: Introduce Yourself · B: Golden Way · C: Golden Examples.
-          </p>
-          <div class="card__actions">
-            <button class="btn btn--primary" data-guide="buddy" type="button">Open Prompting Buddy</button>
-          </div>
-        </div>
-      </article>
-    </div>
-  </template>
+<template id="tpl-menu-posts">
+  <div class="menu">
+    <div class="menu__title">POSTS</div>
+    <div class="menu__scroll" id="postsList"></div>
+    <div class="menu__hint">Drafts allowed</div>
+  </div>
+</template>
 
-  <!-- Module A -->
-  <template id="tpl-buddy-module-a">
-    <div class="module module--a">
-      <header class="module__header">
-        <h2 class="module__title">Module A — Introduce Yourself to Your AI</h2>
-        <p class="module__sub">Generate a reusable “working agreement” prompt.</p>
-      </header>
-
-      <div class="panels">
-        <section class="panel panel--input" aria-label="About you">
-          <h3 class="panel__title">About you</h3>
-
-          <label class="field">
-            <span class="field__label">Your role</span>
-            <input class="field__input" id="aRole" type="text" placeholder="e.g., Product thinker / beginner dev / writer" />
-          </label>
-
-          <label class="field">
-            <span class="field__label">Main goal with AI</span>
-            <input class="field__input" id="aGoal" type="text" placeholder="e.g., plan before building, write prompts, learn" />
-          </label>
-
-          <fieldset class="field">
-            <legend class="field__label">What you want in answers</legend>
-            <label><input type="checkbox" id="aWStructure" /> Clear structure</label>
-            <label><input type="checkbox" id="aWSteps" /> Step-by-step</label>
-            <label><input type="checkbox" id="aWShort" /> Short & direct</label>
-            <label><input type="checkbox" id="aWExamples" /> Examples</label>
-            <label><input type="checkbox" id="aWWarnings" /> Warnings / missing constraints</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend class="field__label">Tone</legend>
-            <label><input type="radio" name="aTone" value="gentle" /> Gentle</label>
-            <label><input type="radio" name="aTone" value="direct" checked /> Honest & direct</label>
-            <label><input type="radio" name="aTone" value="strict" /> Very strict</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend class="field__label">Speed vs thinking</legend>
-            <label><input type="radio" name="aPace" value="fast" /> Fast</label>
-            <label><input type="radio" name="aPace" value="think" checked /> Pause & think</label>
-          </fieldset>
-
-          <div class="panel__actions">
-            <button class="btn btn--primary" id="aGenerate" type="button">Generate</button>
-            <button class="btn" id="aReset" type="button">Reset</button>
-          </div>
-        </section>
-
-        <section class="panel panel--output" aria-label="Generated intro prompt">
-          <h3 class="panel__title">Your intro prompt</h3>
-          <textarea class="output" id="aOutput" rows="14" readonly>(Generated prompt will appear here)</textarea>
-          <div class="panel__actions">
-            <button class="btn btn--primary" id="aCopy" type="button">Copy</button>
-          </div>
-          <p class="panel__note">Paste this as the first message in a new AI chat.</p>
-        </section>
+<template id="tpl-content-posts">
+  <div class="posts">
+    <article class="card" id="postDetail">
+      <div class="card__body">
+        <h2 class="card__title">Select a post</h2>
+        <p class="card__desc">Pick one from the list on the left.</p>
       </div>
+    </article>
+  </div>
+</template>
+
+<template id="tpl-menu-aiguide">
+  <div class="menu">
+    <div class="menu__title">AI GUIDE</div>
+    <div class="menu__group">
+      <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
+      <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
+      <button class="menu__item menu__item--mini" data-route="posts" type="button">Posts</button>
+      <button class="menu__item menu__item--mini is-active" data-route="aiguide" type="button">AI Guide</button>
+      <button class="menu__item menu__item--mini" data-route="about" type="button">About</button>
     </div>
-  </template>
+    <div class="menu__sep"></div>
+    <button class="menu__item is-active" data-guide="overview" type="button">Overview</button>
+    <button class="menu__item" data-guide="buddy" type="button">Prompting Buddy</button>
+    <div class="menu__hint">Friendly peer</div>
+  </div>
+</template>
 
-  <!-- Module B -->
-  <template id="tpl-buddy-module-b">
-    <div class="module module--b">
-      <header class="module__header">
-        <h2 class="module__title">Module B — Golden Way of Building</h2>
-        <p class="module__sub">Teach your AI disciplined process (DEPLOY-gated execution).</p>
-      </header>
-
-      <div class="panels">
-        <section class="panel panel--input" aria-label="Golden Way options">
-          <h3 class="panel__title">Choose strictness</h3>
-
-          <fieldset class="field">
-            <legend class="field__label">Mode</legend>
-            <label><input type="radio" name="bMode" value="soft" /> Soft guidance</label>
-            <label><input type="radio" name="bMode" value="standard" checked /> Standard Golden Way</label>
-            <label><input type="radio" name="bMode" value="strict" /> Strict Golden Way</label>
-          </fieldset>
-
-          <div class="panel__actions">
-            <button class="btn btn--primary" id="bGenerate" type="button">Generate</button>
-          </div>
-        </section>
-
-        <section class="panel panel--output" aria-label="Golden Way prompt">
-          <h3 class="panel__title">Golden prompt</h3>
-          <textarea class="output" id="bOutput" rows="14" readonly>(Generated Golden Way prompt will appear here)</textarea>
-          <div class="panel__actions">
-            <button class="btn btn--primary" id="bCopy" type="button">Copy</button>
-          </div>
-          <p class="panel__note">Paste once per project chat. Use “DEPLOY” to trigger execution.</p>
-        </section>
+<template id="tpl-content-aiguide-overview">
+  <div class="aiguide">
+    <article class="card">
+      <div class="card__body">
+        <h2 class="card__title">How to Be Friends with AI (Without Losing Your Mind)</h2>
+        <p class="card__desc">A calm, practical guide to working with AI like an adult: clear goals, clean prompts, and fewer messes.</p>
+        <div class="card__actions">
+          <button class="btn btn--primary" data-guide="buddy" type="button">Open Prompting Buddy</button>
+          <button class="btn" data-route="about" type="button">Support / About</button>
+        </div>
       </div>
+    </article>
+  </div>
+</template>
+
+<template id="tpl-content-aiguide-buddy">
+  <div class="buddy">
+    <div class="buddy__layout">
+      <aside class="buddy__modules">
+        <div class="buddy__title">Prompting Buddy</div>
+        <button class="buddy__mod is-active" data-module="a" type="button">Module A — Introduce Yourself</button>
+        <button class="buddy__mod" data-module="b" type="button">Module B — Golden Way</button>
+        <button class="buddy__mod" data-module="c" type="button">Module C — Golden Examples</button>
+      </aside>
+      <section class="buddy__main" id="buddyMain"></section>
     </div>
-  </template>
+  </div>
+</template>
 
-  <!-- Module C -->
-  <template id="tpl-buddy-module-c">
-    <div class="module module--c">
-      <header class="module__header">
-        <h2 class="module__title">Module C — Golden Examples</h2>
-        <p class="module__sub">Bad → Improved → Golden, with the same task.</p>
-      </header>
+<template id="tpl-buddy-module-a">
+  <div class="module">
+    <header class="module__header">
+      <h2 class="module__title">Module A — Introduce Yourself to Your AI</h2>
+      <p class="module__sub">Generate a reusable “working agreement” prompt.</p>
+    </header>
+    <div class="panels">
+      <section class="panel">
+        <h3 class="panel__title">About you</h3>
+        <label class="field"><span class="field__label">Your role</span><input class="field__input" id="aRole" type="text" placeholder="e.g., Product thinker / beginner dev / writer"/></label>
+        <label class="field"><span class="field__label">Main goal with AI</span><input class="field__input" id="aGoal" type="text" placeholder="e.g., plan before building, write prompts, learn"/></label>
 
-      <div class="examples">
-        <div class="examples__top">
-          <label class="field">
-            <span class="field__label">Choose example</span>
-            <select id="cExampleSelect">
-              <option value="tetris">Build a simple game</option>
-              <option value="planapp">Plan an app (no code)</option>
-              <option value="fixidea">Fix a broken idea</option>
-              <option value="promptcraft">Write a better prompt</option>
-            </select>
-          </label>
-        </div>
-
-        <article class="example" id="cExample">
-          <section class="block block--bad">
-            <h3>❌ Bad Prompt</h3>
-            <pre class="block__text" id="cBad"></pre>
-          </section>
-
-          <section class="block block--improved">
-            <h3>⚠️ Improved Prompt</h3>
-            <pre class="block__text" id="cImproved"></pre>
-          </section>
-
-          <section class="block block--golden">
-            <h3>🟡 Golden Prompt</h3>
-            <pre class="block__text" id="cGolden"></pre>
-          </section>
-
-          <section class="block block--why">
-            <h3>Why this works</h3>
-            <div class="block__text" id="cWhy"></div>
-          </section>
-        </article>
-      </div>
-    </div>
-  </template>
-
-  <!-- About -->
-  <template id="tpl-menu-about">
-    <div class="menu">
-      <div class="menu__title">ABOUT</div>
-      <button class="menu__item is-active" data-about="about" type="button">About</button>
-      <button class="menu__item" data-about="settings" type="button">Settings</button>
-      <button class="menu__item" data-about="support" type="button">Support ☕</button>
-      <div class="menu__hint">Everything lives here</div>
-    </div>
-  </template>
-
-  <template id="tpl-content-about">
-    <div class="about">
-      <article class="card">
-        <div class="card__body">
-          <h2 class="card__title">About Oddly Useful</h2>
-          <p class="card__desc">
-            A retro-styled launcher for practical little tools: mood tracking, counters, cooking, and more.
-          </p>
-        </div>
-      </article>
-
-      <article class="card" style="margin-top:12px" id="aboutSettingsCard">
-        <div class="card__body">
-          <h2 class="card__title">Settings</h2>
-
-          <section class="settings__block" aria-label="Theme">
-            <h3 class="settings__h">Theme</h3>
-            <div class="settings__row">
-              <label><input type="radio" name="theme" value="nes" /> NES</label>
-              <label><input type="radio" name="theme" value="ps" /> PlayStation</label>
-              <label><input type="radio" name="theme" value="xbox" /> Xbox</label>
-            </div>
-            <p class="settings__note">Themes change visuals only (color, texture, pixelation). Layout stays the same.</p>
-          </section>
-
-          <section class="settings__block" aria-label="AI Provider and Key">
-            <h3 class="settings__h">AI (Bring Your Own Key)</h3>
-            <p class="settings__note">
-              Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server.
-              You can remove it anytime by clearing this site’s data.
-            </p>
-
-            <div class="settings__row">
-              <label for="aiProvider">Provider</label>
-              <select id="aiProvider">
-                <option value="openai">OpenAI</option>
-                <option value="deepseek">DeepSeek</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div class="settings__row">
-              <label for="apiKey">API Key</label>
-              <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off" />
-            </div>
-
-            <div class="settings__row">
-              <button class="btn" id="testKey" type="button">Test key</button>
-              <button class="btn" id="saveKey" type="button">Save</button>
-              <button class="btn" id="clearKey" type="button">Clear</button>
-            </div>
-
-            <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
-          </section>
-        </div>
-      </article>
-
-      <article class="card" style="margin-top:12px" id="aboutSupportCard">
-        <div class="card__body">
-          <h2 class="card__title">Support</h2>
-          <p class="card__desc">If you enjoy the tools, you can support the project here:</p>
-          <div class="card__actions">
-            <a class="btn btn--primary" id="aboutSupportLink" href="#" target="_blank" rel="noopener">Buy me a coffee ☕</a>
+        <details class="fold" open>
+          <summary class="fold__sum">What you want in answers</summary>
+          <div class="fold__body">
+            <label><input type="checkbox" id="aWStructure"/> Clear structure</label>
+            <label><input type="checkbox" id="aWSteps"/> Step-by-step</label>
+            <label><input type="checkbox" id="aWShort"/> Short & direct</label>
+            <label><input type="checkbox" id="aWExamples"/> Examples</label>
+            <label><input type="checkbox" id="aWWarnings"/> Warnings / missing constraints</label>
           </div>
-        </div>
-      </article>
-    </div>
-  </template>
+        </details>
 
-  <script src="assets/data.js"></script>
-  <script src="assets/app.js"></script>
+        <details class="fold" open>
+          <summary class="fold__sum">Tone</summary>
+          <div class="fold__body">
+            <label><input type="radio" name="aTone" value="gentle"/> Gentle</label>
+            <label><input type="radio" name="aTone" value="direct" checked/> Honest & direct</label>
+            <label><input type="radio" name="aTone" value="strict"/> Very strict</label>
+          </div>
+        </details>
+
+        <div class="panel__actions">
+          <button class="btn btn--primary" id="aGenerate" type="button">Generate</button>
+          <button class="btn" id="aReset" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3 class="panel__title">Your intro prompt</h3>
+        <textarea class="output" id="aOutput" rows="14" readonly>(Generated prompt will appear here)</textarea>
+        <div class="panel__actions">
+          <button class="btn btn--primary" id="aCopy" type="button">Copy</button>
+        </div>
+        <p class="panel__note">Paste this as the first message in a new AI chat.</p>
+      </section>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-buddy-module-b">
+  <div class="module">
+    <header class="module__header">
+      <h2 class="module__title">Module B — Golden Way</h2>
+      <p class="module__sub">Copy a reusable “rules prompt” that forces planning first and execution only on DEPLOY.</p>
+    </header>
+    <div class="panels">
+      <section class="panel">
+        <h3 class="panel__title">Choose strictness</h3>
+        <p class="panel__note">This is not “generate code”. It’s a rule-set you paste at the start of a chat so the AI behaves properly.</p>
+        <fieldset class="field">
+          <legend class="field__label">Mode</legend>
+          <label><input type="radio" name="bMode" value="soft"/> Soft guidance</label>
+          <label><input type="radio" name="bMode" value="standard" checked/> Standard Golden Way</label>
+          <label><input type="radio" name="bMode" value="strict"/> Strict Golden Way</label>
+        </fieldset>
+        <div class="panel__actions">
+          <button class="btn btn--primary" id="bGenerate" type="button">Copy Golden Rules</button>
+          <button class="btn" id="bExample" type="button">Show example</button>
+        </div>
+      </section>
+      <section class="panel">
+        <h3 class="panel__title">Golden rules prompt</h3>
+        <textarea class="output" id="bOutput" rows="14" readonly>(Choose a mode, then tap “Copy Golden Rules”)</textarea>
+        <div class="panel__actions">
+          <button class="btn btn--primary" id="bCopy" type="button">Copy</button>
+        </div>
+        <p class="panel__note">Paste once per project chat. Use “DEPLOY” to trigger execution.</p>
+      </section>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-buddy-module-c">
+  <div class="module">
+    <header class="module__header">
+      <h2 class="module__title">Module C — Golden Examples</h2>
+      <p class="module__sub">Bad → Improved → Golden, with the same task.</p>
+    </header>
+    <label class="field">
+      <span class="field__label">Choose example</span>
+      <select id="cExampleSelect">
+        <option value="planapp">Plan an app (no code)</option>
+        <option value="promptcraft">Write a better prompt</option>
+        <option value="fixidea">Fix a broken idea</option>
+      </select>
+    </label>
+
+    <section class="block"><h3>❌ Bad Prompt</h3><pre class="block__text" id="cBad"></pre></section>
+    <section class="block"><h3>⚠️ Improved Prompt</h3><pre class="block__text" id="cImproved"></pre></section>
+    <section class="block"><h3>🟡 Golden Prompt</h3><pre class="block__text" id="cGolden"></pre></section>
+    <section class="block"><h3>Why this works</h3><div class="block__text" id="cWhy"></div></section>
+  </div>
+</template>
+
+<template id="tpl-menu-about">
+  <div class="menu">
+    <div class="menu__title">ABOUT</div>
+    <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
+    <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
+    <button class="menu__item menu__item--mini" data-route="posts" type="button">Posts</button>
+    <button class="menu__item menu__item--mini" data-route="aiguide" type="button">AI Guide</button>
+    <button class="menu__item menu__item--mini is-active" data-route="about" type="button">About</button>
+    <div class="menu__hint">Support is optional</div>
+  </div>
+</template>
+
+<template id="tpl-content-about">
+  <div class="about">
+    <article class="card"><div class="card__body">
+      <h2 class="card__title">About Oddly Useful</h2>
+      <p class="card__desc" id="aboutText"></p>
+      <div class="card__actions">
+        <a class="btn btn--primary" id="aboutSupport" href="#" target="_blank" rel="noopener">Support on Buy Me a Coffee ☕</a>
+      </div>
+    </div></article>
+
+    <article class="card"><div class="card__body">
+      <h3 class="card__title card__title--sm">Theme</h3>
+      <p class="card__desc">Themes change visuals only (color, texture, pixelation). Layout stays the same.</p>
+      <div class="settings__row">
+        <label><input type="radio" name="theme" value="retro"/> Retro</label>
+        <label><input type="radio" name="theme" value="nostalgia"/> Nostalgia</label>
+        <label><input type="radio" name="theme" value="modern"/> Modern</label>
+      </div>
+    </div></article>
+
+    <article class="card"><div class="card__body">
+      <h3 class="card__title card__title--sm">AI (Bring Your Own Key)</h3>
+      <p class="card__desc">Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server. You can remove it anytime by clearing this site’s data.</p>
+      <div class="settings__row">
+        <label for="aiProvider">Provider</label>
+        <select id="aiProvider">
+          <option value="openai">OpenAI</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="settings__row">
+        <label for="apiKey">API Key</label>
+        <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off"/>
+      </div>
+      <div class="settings__row">
+        <button class="btn" id="testKey" type="button">Test key</button>
+        <button class="btn" id="clearKey" type="button">Clear key</button>
+      </div>
+      <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
+    </div></article>
+  </div>
+</template>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>
