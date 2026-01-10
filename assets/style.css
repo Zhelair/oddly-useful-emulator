@@ -7,7 +7,7 @@ a{color:inherit}button,a.navbtn{font:inherit}
 .topnav{display:flex;gap:8px;flex-wrap:wrap}.navbtn{padding:6px 10px;border-radius:12px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.72);cursor:pointer}
 .navbtn:hover{border-color:rgba(0,0,0,.18);background:rgba(255,255,255,.92)}
 .console{min-height:calc(100vh - 110px);display:grid;place-items:center;padding:18px 12px}
-.screen{width:min(900px,92vw);aspect-ratio:4/3;border-radius:18px;border:1px solid rgba(255,255,255,.22);background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06));box-shadow:0 30px 90px rgba(0,0,0,.55);overflow:hidden;position:relative}
+.screen{width:min(1200px,94vw);aspect-ratio:4/3;border-radius:18px;border:1px solid rgba(255,255,255,.22);background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06));box-shadow:0 30px 90px rgba(0,0,0,.55);overflow:hidden;position:relative}
 .screen__bg{position:absolute;inset:0;opacity:.55;background:radial-gradient(70% 55% at 70% 30%,rgba(255,138,61,.18),transparent 60%),radial-gradient(60% 50% at 20% 65%,rgba(44,130,126,.16),transparent 60%),linear-gradient(180deg,rgba(245,239,226,.12),rgba(12,12,13,.35));pointer-events:none}
 .screen:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.05),rgba(255,255,255,.05) 1px,rgba(0,0,0,0) 4px,rgba(0,0,0,0) 7px);opacity:.22;pointer-events:none}
 .screen__ui{position:relative;height:100%;display:grid;grid-template-columns:240px 1fr;gap:14px;padding:14px}
@@ -15,6 +15,7 @@ a{color:inherit}button,a.navbtn{font:inherit}
 .screen__menu{padding:10px}
 .screen__content{padding:14px;overflow:auto}
 .menu__title{font-size:12px;opacity:.7;letter-spacing:.10em;margin-bottom:8px;color:rgba(0,0,0,.65)}
+.menu__group{margin-bottom:6px}
 .menu__item{display:block;width:100%;text-align:left;padding:9px 10px;border-radius:12px;border:1px solid transparent;background:transparent;cursor:pointer}
 .menu__item:hover{background:rgba(255,138,61,.10)}
 .menu__item.is-active{background:rgba(255,138,61,.14);border-color:rgba(255,138,61,.28)}
