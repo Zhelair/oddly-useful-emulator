@@ -24,4 +24,10 @@ window.OU_DATA = {
     { id:"golden-way", title:"The Golden Way: build slowly, ship clean", date:"2026-01-10", body:"Golden way:\n- lock decisions before coding\n- change one thing at a time\n- keep a “golden version” that always works\n- only execute when you explicitly say DEPLOY"},
     { id:"ai-hygiene", title:"AI hygiene that saves your sanity", date:"2026-01-10", body:"One chat = one job.\nWhen the task changes, start a new chat.\n\nAlso: don’t paste giant code blocks unless it’s necessary. Ask for a zip / patch instead."}
   ]
+  house: {
+    endpoint: "",
+    dailyLimit: 15,
+    maxWords: 2000,
+    timezone: "Europe/Sofia",
+  },
 };

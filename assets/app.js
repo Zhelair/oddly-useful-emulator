@@ -6,14 +6,47 @@
   const premium = data.premium || {};
   const premiumProductUrl = premium.productUrl || supportUrl;
   const premiumPassphrases = Array.isArray(premium.passphrases) ? premium.passphrases : [];
+  const houseCfg = data.house || {};
+  const HOUSE_ENDPOINT = (houseCfg.endpoint||"").trim();
+  const HOUSE_DAILY_LIMIT = Number(houseCfg.dailyLimit||15);
+  const HOUSE_MAX_WORDS = Number(houseCfg.maxWords||2000);
+  const HOUSE_TZ = (houseCfg.timezone||"Europe/Sofia").trim();
 
   const LS = {
     premiumUnlocked: "ou_premium_unlocked",
+    premiumPass: "ou_premium_pass",
+    aiAccess: "ou_ai_access",
+    houseUsage: "ou_house_usage",
     tipPcOpened: "ou_tip_pc_opened",
     tipPcFocus: "ou_tip_pc_focus",
     tipPcRun: "ou_tip_pc_run",
     tipPcGolden: "ou_tip_pc_golden",
   };
+
+  // House-key limits (client-side display; server-side enforcement is done by the Worker)
+  const sofiaDateKey = ()=>{
+    try{
+      return new Intl.DateTimeFormat("en-CA",{timeZone: HOUSE_TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date());
+    }catch(e){
+      return new Date().toISOString().slice(0,10);
+    }
+  };
+  const getHouseUsage = ()=>{
+    const dk = sofiaDateKey();
+    let obj = null;
+    try{ obj = JSON.parse(localStorage.getItem(LS.houseUsage)||"null"); }catch(e){ obj=null; }
+    if(!obj || obj.date!==dk){ obj = {date: dk, count: 0}; localStorage.setItem(LS.houseUsage, JSON.stringify(obj)); }
+    return obj;
+  };
+  const incHouseUsage = ()=>{
+    const u = getHouseUsage();
+    u.count = (u.count||0) + 1;
+    localStorage.setItem(LS.houseUsage, JSON.stringify(u));
+    return u;
+  };
+  const wordCount = (s)=> (String(s||"").trim().match(/\S+/g)||[]).length;
+
+
 
   document.getElementById("year").textContent = new Date().getFullYear();
   document.getElementById("footerSupport").href = supportUrl;
@@ -151,6 +184,7 @@
       const ok = premiumPassphrases.some(p=>String(p).trim()===v);
       if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
       localStorage.setItem(LS.premiumUnlocked,"1");
+      localStorage.setItem(LS.premiumPass, pass);
       status.textContent="✅ Premium enabled for this browser.";
       setTimeout(()=>initBuddy("a"), 450);
     };
@@ -235,7 +269,32 @@
     const out=document.getElementById("pcOut");
     const err=document.getElementById("pcError");
     const status=document.getElementById("pcStatus");
+    const accessSel=document.getElementById("pcAccess");
+    const usageEl=document.getElementById("pcUsage");
     const modelSel=document.getElementById("pcModel");
+
+    // Access mode (BYO key vs House key)
+    const syncAccessUI = ()=>{
+      const mode = localStorage.getItem(LS.aiAccess) || "byo";
+      if(accessSel) accessSel.value = mode;
+      // keep About → Settings dropdown in sync if it exists
+      const aboutSel = document.getElementById("aiAccess");
+      if(aboutSel) aboutSel.value = mode;
+      return mode;
+    };
+    const updateUsageUI = ()=>{
+      const mode = syncAccessUI();
+      if(!usageEl) return null;
+      if(mode!=="house"){ usageEl.textContent=""; return null; }
+      const u = getHouseUsage();
+      usageEl.textContent = `Prompt Checks: ${u.count||0} / ${HOUSE_DAILY_LIMIT} today • Resets 00:00 Sofia`;
+      return Math.max(0, HOUSE_DAILY_LIMIT-(u.count||0));
+    };
+    updateUsageUI();
+    if(accessSel){
+      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); updateUsageUI(); };
+    }
+
 
     const oneTime = (key, fn) => {
       if(localStorage.getItem(key)==="1") return;
@@ -248,6 +307,7 @@
       status.classList.add("is-on");
       setTimeout(()=>{ status.classList.remove("is-on"); status.textContent=""; }, ms);
     };
+
 
     oneTime(LS.tipPcOpened, ()=>flashStatus("Prompt Check reviews your prompt — it does not run the task.", 3200));
     if(input){
@@ -269,19 +329,38 @@
       err.textContent="";
       const prompt=(input?.value||"").trim();
       if(!prompt){ err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
-      const apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
-      if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
+      const mode = (localStorage.getItem(LS.aiAccess)||"byo");
+      const wc = wordCount(prompt);
+      if(wc>HOUSE_MAX_WORDS){ err.textContent=`This prompt is too long (${wc} words). Max is ${HOUSE_MAX_WORDS} words.`; return; }
+      let apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
+      if(mode==="byo"){
+        if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
+      }else{
+        const u=getHouseUsage();
+        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); updateUsageUI(); return; }
+        if(!HOUSE_ENDPOINT){ err.textContent="House key mode needs a backend proxy. Set house.endpoint in assets/data.js."; return; }
+        const pass=(localStorage.getItem(LS.premiumPass)||"").trim();
+        if(!pass){ err.textContent="Missing passphrase in this browser. Re-enter Premium passphrase."; return; }
+      }
       out.innerHTML = '<div class="pc__empty">Reviewing your prompt…<div class="pc__sub">Thinking like an AI — not executing like one.</div></div>';
       flashStatus("Reviewing your prompt…", 1800);
       try{
         const model = (modelSel?.value||"deepseek-chat").trim();
-        const text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
+        let text="";
+        if((localStorage.getItem(LS.aiAccess)||"byo")==="byo"){
+          text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
+        }else{
+          const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
+          text = await housePromptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
+          incHouseUsage();
+          updateUsageUI();
+        }
         const parsed = parsePromptCheck(text);
         renderPromptCheck(out, parsed, text);
         flashStatus("Prompt reviewed.", 2200);
       }catch(ex){
         out.innerHTML = '<div class="pc__empty">Couldn’t reach the model just now.<div class="pc__sub">Try again in a moment.</div></div>';
-        err.textContent = "Couldn’t reach the model just now. Try again in a moment.";
+        err.textContent = ex && ex.message ? ex.message : "Couldn’t reach the model just now. Try again in a moment.";
       }
     };
   }
@@ -475,9 +554,11 @@
     });
 
     const provider=document.getElementById("aiProvider");
+    const access=document.getElementById("aiAccess");
     const key=document.getElementById("apiKey");
     const status=document.getElementById("settingsStatus");
     provider.value = localStorage.getItem("ou_ai_provider") || "openai";
+    access.value = localStorage.getItem(LS.aiAccess) || "byo";
     key.value = localStorage.getItem("ou_ai_key") || "";
     provider.onchange=()=>{ localStorage.setItem("ou_ai_provider", provider.value); status.textContent=""; };
     key.oninput=()=>{ localStorage.setItem("ou_ai_key", key.value); status.textContent=""; };

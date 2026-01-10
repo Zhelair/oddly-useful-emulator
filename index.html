@@ -228,7 +228,7 @@
         <div id="premiumUnlock" class="unlock" hidden>
           <label class="field">
             <span class="field__label">Enter passphrase</span>
-            <input class="field__input" id="premiumPass" type="text" placeholder="e.g. ODDLY-USEFUL-2026" autocomplete="off"/>
+            <input class="field__input" id="premiumPass" type="text" placeholder="e.g. 12345" autocomplete="off"/>
           </label>
           <div class="panel__actions">
             <button class="btn btn--primary" id="premiumUnlockBtn" type="button">Unlock</button>
@@ -360,7 +360,15 @@
         <textarea class="output output--input" id="pcInput" rows="10" placeholder="Paste your prompt here — messy is fine. This tool is for improving prompts, not judging them."></textarea>
         <p class="panel__note">Short or half-formed prompts are okay. Empty prompts won’t be checked.</p>
 
+        
         <div class="settings__row">
+          <label for="pcAccess">Access</label>
+          <select id="pcAccess">
+            <option value="byo">My API key</option>
+            <option value="house">Included key (15/day)</option>
+          </select>
+        </div>
+<div class="settings__row">
           <label for="pcModel">AI model</label>
           <select id="pcModel">
             <option value="deepseek-chat">DeepSeek (recommended)</option>
@@ -370,7 +378,7 @@
         <div class="panel__actions">
           <button class="btn btn--primary" id="pcRun" type="button">Check prompt</button>
         </div>
-        <p class="panel__note">Uses your API key. Runs only when you click.</p>
+        <p class="panel__note">Runs only when you click. Your selected access mode decides which key is used.</p>
         <div class="settings__status" id="pcError" aria-live="polite"></div>
       </section>
 
@@ -429,6 +437,14 @@
         </select>
       </div>
       <div class="settings__row">
+        <label for="aiAccess">Access</label>
+        <select id="aiAccess">
+          <option value="byo">Use my API key (recommended)</option>
+          <option value="house">Use included DeepSeek key (15/day)</option>
+        </select>
+      </div>
+
+      <div class="settings__row">
         <label for="apiKey">API Key</label>
         <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off"/>
       </div>
@@ -437,6 +453,7 @@
         <button class="btn" id="clearKey" type="button">Clear key</button>
       </div>
       <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
+      <div class="settings__note">House key is limited to <b>15 prompt checks/day</b> and <b>2000 words max</b>. Resets at <b>00:00 Sofia</b>.</div>
     </div></article>
   </div>
 </template>

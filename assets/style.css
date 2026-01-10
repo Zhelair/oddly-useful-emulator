@@ -152,3 +152,6 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
   .panels{grid-template-columns:1fr}
   .menu__scroll{max-height:none}
 }
+
+.pc__usage{font-size:12px;opacity:.82;margin:-6px 0 10px 0;}
+.settings__note{font-size:12px;opacity:.82;margin-top:8px;line-height:1.35;}
