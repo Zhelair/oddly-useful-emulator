@@ -4,15 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Oddly Useful — Emulator</title>
-
-  <!-- CSS later -->
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 
-<body>
-  <!-- App Shell -->
+<body class="theme-ps">
   <div class="app" id="app">
-    <!-- Top Bar -->
     <header class="topbar" id="topbar">
       <div class="brand" id="brand">
         <div class="brand__badge" aria-hidden="true">OU</div>
@@ -22,120 +18,41 @@
         </div>
       </div>
 
-      <!-- Global nav (always visible) -->
       <nav class="topnav" id="topnav" aria-label="Primary navigation">
         <button class="navbtn" data-route="home" type="button">Home</button>
         <button class="navbtn" data-route="projects" type="button">Projects</button>
         <button class="navbtn" data-route="posts" type="button">Posts</button>
         <button class="navbtn" data-route="aiguide" type="button">AI Guide</button>
-
-        <!-- Support is a normal link -->
-        <a class="navbtn navbtn--coffee" id="supportLink" href="https://buymeacoffee.com/niksales73l" target="_blank" rel="noopener">
-          Support ☕
-        </a>
-
-        <!-- “SELECT” / Settings (hidden panel trigger) -->
-        <button class="navbtn navbtn--select" id="openSettings" type="button" aria-haspopup="dialog" aria-controls="settingsModal">
-          SELECT
-        </button>
+        <button class="navbtn" data-route="about" type="button">About</button>
       </nav>
     </header>
 
-    <!-- Main Console Area (the “machine”) -->
     <main class="console" id="console">
-      <!-- Arcade Cabinet Frame (visual later via CSS) -->
       <section class="cabinet" id="cabinet" aria-label="Emulator cabinet">
-        <!-- 4:3 Screen -->
         <div class="screen" id="screen" role="region" aria-label="Arcade screen (4:3)">
-          <!-- Atmosphere layer (Matrix/code flow) -->
           <div class="screen__bg" id="screenBg" aria-hidden="true"></div>
 
-          <!-- Screen UI Layer -->
           <div class="screen__ui" id="screenUi">
-            <!-- Left: Menu (contextual to current route) -->
-            <aside class="screen__menu" id="screenMenu" aria-label="Section menu">
-              <!-- Route-specific menu content inserted by JS later -->
-            </aside>
-
-            <!-- Center: Main Content (featured/project/post/guide/module) -->
-            <section class="screen__content" id="screenContent" aria-label="Main content">
-              <!-- Route-specific content inserted by JS later -->
-            </section>
+            <aside class="screen__menu" id="screenMenu" aria-label="Section menu"></aside>
+            <section class="screen__content" id="screenContent" aria-label="Main content"></section>
           </div>
         </div>
-
-        <!-- Cabinet bottom / controls area (visual only later) -->
         <div class="cabinet__base" aria-hidden="true"></div>
       </section>
     </main>
 
-    <!-- Subtle Footer Links (outside screen) -->
     <footer class="footer" id="footer">
       <span class="footer__copy">© <span id="year"></span> Oddly Useful</span>
       <span class="footer__sep" aria-hidden="true">·</span>
       <a class="footer__link" href="#about" data-route="about">About</a>
       <span class="footer__sep" aria-hidden="true">·</span>
-      <a class="footer__link" href="#contact" data-route="contact">Contact</a>
+      <a class="footer__link" href="#contact" data-route="about">Contact</a>
       <span class="footer__sep" aria-hidden="true">·</span>
-      <a class="footer__link" href="https://buymeacoffee.com/YOURNAME" target="_blank" rel="noopener">Support ☕</a>
+      <a class="footer__link" href="#" id="supportLink" target="_blank" rel="noopener">Support ☕</a>
     </footer>
   </div>
 
-  <!-- SETTINGS MODAL (SELECT) -->
-  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
-    <div class="modal__panel">
-      <header class="modal__header">
-        <h2 class="modal__title" id="settingsTitle">Settings</h2>
-        <button class="modal__close" id="closeSettings" type="button" aria-label="Close settings">✕</button>
-      </header>
-
-      <div class="modal__body">
-        <!-- Theme selection (layout never changes; visuals only) -->
-        <section class="settings__block" aria-label="Theme">
-          <h3 class="settings__h">Theme</h3>
-          <div class="settings__row">
-            <label><input type="radio" name="theme" value="nes" /> NES</label>
-            <label><input type="radio" name="theme" value="ps" /> PlayStation</label>
-            <label><input type="radio" name="theme" value="xbox" /> Xbox</label>
-          </div>
-          <p class="settings__note">Themes change visuals only (color, texture, pixelation). Layout stays the same.</p>
-        </section>
-
-        <!-- BYO-key provider + key -->
-        <section class="settings__block" aria-label="AI Provider and Key">
-          <h3 class="settings__h">AI (Bring Your Own Key)</h3>
-
-          <p class="settings__note">
-            Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server.
-            You can remove it anytime by clearing this site’s data.
-          </p>
-
-          <div class="settings__row">
-            <label for="aiProvider">Provider</label>
-            <select id="aiProvider">
-              <option value="openai">OpenAI</option>
-              <option value="deepseek">DeepSeek</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div class="settings__row">
-            <label for="apiKey">API Key</label>
-            <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off" />
-          </div>
-
-          <div class="settings__row">
-            <button id="testKey" type="button">Test key</button>
-            <button id="clearKey" type="button">Clear key</button>
-          </div>
-
-          <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
-        </section>
-      </div>
-    </div>
-  </div>
-
-  <!-- TEMPLATES (static HTML fragments) -->
+  <!-- ====== TEMPLATES ====== -->
   <template id="tpl-menu-home">
     <div class="menu">
       <div class="menu__title">MENU</div>
@@ -143,13 +60,12 @@
       <button class="menu__item" data-route="projects" type="button">Projects</button>
       <button class="menu__item" data-route="posts" type="button">Posts</button>
       <button class="menu__item" data-route="aiguide" type="button">AI Guide</button>
-      <a class="menu__item" href="https://buymeacoffee.com/YOURNAME" target="_blank" rel="noopener">Support ☕</a>
+      <button class="menu__item" data-route="about" type="button">About</button>
       <div class="menu__hint">Press START</div>
     </div>
   </template>
 
   <template id="tpl-content-home">
-    <!-- Attract mode / after-start mode handled by JS later -->
     <div class="home">
       <div class="home__attract" id="homeAttract">
         <div class="home__pressstart" id="pressStart" role="button" tabindex="0" aria-label="Press Start">
@@ -161,7 +77,6 @@
         <div class="home__featured">
           <div class="featured__label">Featured today</div>
 
-          <!-- Featured card (random project) -->
           <article class="card featured__card" id="featuredCard">
             <div class="card__media" id="featuredMedia" aria-hidden="true"></div>
             <div class="card__body">
@@ -181,12 +96,7 @@
   <template id="tpl-menu-projects">
     <div class="menu">
       <div class="menu__title">PROJECTS</div>
-
-      <!-- Scrollable list lives here (future-proof) -->
-      <div class="menu__scroll" id="projectsList" aria-label="Project list">
-        <!-- project rows injected by JS -->
-      </div>
-
+      <div class="menu__scroll" id="projectsList" aria-label="Project list"></div>
       <div class="menu__hint">↑ ↓ · Enter</div>
     </div>
   </template>
@@ -194,7 +104,6 @@
   <template id="tpl-content-projects">
     <div class="projects">
       <article class="card project__detail" id="projectDetail">
-        <!-- filled by JS -->
         <div class="card__body">
           <h2 class="card__title">Select a project</h2>
           <p class="card__desc">Pick one from the list on the left.</p>
@@ -206,11 +115,7 @@
   <template id="tpl-menu-posts">
     <div class="menu">
       <div class="menu__title">POSTS</div>
-
-      <div class="menu__scroll" id="postsList" aria-label="Posts list">
-        <!-- posts injected by JS -->
-      </div>
-
+      <div class="menu__scroll" id="postsList" aria-label="Posts list"></div>
       <div class="menu__hint">Drafts allowed</div>
     </div>
   </template>
@@ -229,11 +134,9 @@
   <template id="tpl-menu-aiguide">
     <div class="menu">
       <div class="menu__title">AI GUIDE</div>
-
       <button class="menu__item is-active" data-guide="overview" type="button">Overview</button>
       <button class="menu__item" data-guide="buddy" type="button">Prompting Buddy</button>
       <button class="menu__item" data-guide="modules" type="button">Modules</button>
-
       <div class="menu__hint">Friendly peer</div>
     </div>
   </template>
@@ -256,28 +159,37 @@
 
   <template id="tpl-content-aiguide-buddy">
     <div class="buddy">
-      <!-- Left inside content: module selector (still inside center area) -->
       <div class="buddy__layout">
         <aside class="buddy__modules" aria-label="Prompting Buddy modules">
           <div class="buddy__title">Prompting Buddy</div>
           <button class="buddy__mod is-active" data-module="a" type="button">Module A — Introduce Yourself</button>
           <button class="buddy__mod" data-module="b" type="button">Module B — Golden Way</button>
           <button class="buddy__mod" data-module="c" type="button">Module C — Golden Examples</button>
-
-          <!-- Future-safe tool entry (deferred) -->
-          <button class="buddy__mod buddy__mod--disabled" type="button" disabled>
-            Prompt Check (coming later)
-          </button>
+          <button class="buddy__mod buddy__mod--disabled" type="button" disabled>Prompt Check (coming later)</button>
         </aside>
 
-        <section class="buddy__main" id="buddyMain" aria-label="Active module">
-          <!-- active module injected by JS -->
-        </section>
+        <section class="buddy__main" id="buddyMain" aria-label="Active module"></section>
       </div>
     </div>
   </template>
 
-  <!-- Module A skeleton -->
+  <template id="tpl-content-aiguide-modules">
+    <div class="aiguide">
+      <article class="card">
+        <div class="card__body">
+          <h2 class="card__title">Modules</h2>
+          <p class="card__desc">
+            A: Introduce Yourself · B: Golden Way · C: Golden Examples.
+          </p>
+          <div class="card__actions">
+            <button class="btn btn--primary" data-guide="buddy" type="button">Open Prompting Buddy</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </template>
+
+  <!-- Module A -->
   <template id="tpl-buddy-module-a">
     <div class="module module--a">
       <header class="module__header">
@@ -286,7 +198,6 @@
       </header>
 
       <div class="panels">
-        <!-- Panel 1: Inputs -->
         <section class="panel panel--input" aria-label="About you">
           <h3 class="panel__title">About you</h3>
 
@@ -328,27 +239,19 @@
           </div>
         </section>
 
-        <!-- Panel 2: Output -->
         <section class="panel panel--output" aria-label="Generated intro prompt">
           <h3 class="panel__title">Your intro prompt</h3>
-
-          <textarea class="output" id="aOutput" rows="14" readonly>
-(Generated prompt will appear here)
-          </textarea>
-
+          <textarea class="output" id="aOutput" rows="14" readonly>(Generated prompt will appear here)</textarea>
           <div class="panel__actions">
             <button class="btn btn--primary" id="aCopy" type="button">Copy</button>
           </div>
-
-          <p class="panel__note">
-            Paste this as the first message in a new AI chat.
-          </p>
+          <p class="panel__note">Paste this as the first message in a new AI chat.</p>
         </section>
       </div>
     </div>
   </template>
 
-  <!-- Module B skeleton -->
+  <!-- Module B -->
   <template id="tpl-buddy-module-b">
     <div class="module module--b">
       <header class="module__header">
@@ -374,24 +277,17 @@
 
         <section class="panel panel--output" aria-label="Golden Way prompt">
           <h3 class="panel__title">Golden prompt</h3>
-
-          <textarea class="output" id="bOutput" rows="14" readonly>
-(Generated Golden Way prompt will appear here)
-          </textarea>
-
+          <textarea class="output" id="bOutput" rows="14" readonly>(Generated Golden Way prompt will appear here)</textarea>
           <div class="panel__actions">
             <button class="btn btn--primary" id="bCopy" type="button">Copy</button>
           </div>
-
-          <p class="panel__note">
-            Paste once per project chat. Use “DEPLOY” to trigger execution.
-          </p>
+          <p class="panel__note">Paste once per project chat. Use “DEPLOY” to trigger execution.</p>
         </section>
       </div>
     </div>
   </template>
 
-  <!-- Module C skeleton -->
+  <!-- Module C -->
   <template id="tpl-buddy-module-c">
     <div class="module module--c">
       <header class="module__header">
@@ -413,7 +309,6 @@
         </div>
 
         <article class="example" id="cExample">
-          <!-- blocks injected by JS later -->
           <section class="block block--bad">
             <h3>❌ Bad Prompt</h3>
             <pre class="block__text" id="cBad"></pre>
@@ -438,7 +333,86 @@
     </div>
   </template>
 
-  <!-- JS later -->
+  <!-- About -->
+  <template id="tpl-menu-about">
+    <div class="menu">
+      <div class="menu__title">ABOUT</div>
+      <button class="menu__item is-active" data-about="about" type="button">About</button>
+      <button class="menu__item" data-about="settings" type="button">Settings</button>
+      <button class="menu__item" data-about="support" type="button">Support ☕</button>
+      <div class="menu__hint">Everything lives here</div>
+    </div>
+  </template>
+
+  <template id="tpl-content-about">
+    <div class="about">
+      <article class="card">
+        <div class="card__body">
+          <h2 class="card__title">About Oddly Useful</h2>
+          <p class="card__desc">
+            A retro-styled launcher for practical little tools: mood tracking, counters, cooking, and more.
+          </p>
+        </div>
+      </article>
+
+      <article class="card" style="margin-top:12px" id="aboutSettingsCard">
+        <div class="card__body">
+          <h2 class="card__title">Settings</h2>
+
+          <section class="settings__block" aria-label="Theme">
+            <h3 class="settings__h">Theme</h3>
+            <div class="settings__row">
+              <label><input type="radio" name="theme" value="nes" /> NES</label>
+              <label><input type="radio" name="theme" value="ps" /> PlayStation</label>
+              <label><input type="radio" name="theme" value="xbox" /> Xbox</label>
+            </div>
+            <p class="settings__note">Themes change visuals only (color, texture, pixelation). Layout stays the same.</p>
+          </section>
+
+          <section class="settings__block" aria-label="AI Provider and Key">
+            <h3 class="settings__h">AI (Bring Your Own Key)</h3>
+            <p class="settings__note">
+              Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server.
+              You can remove it anytime by clearing this site’s data.
+            </p>
+
+            <div class="settings__row">
+              <label for="aiProvider">Provider</label>
+              <select id="aiProvider">
+                <option value="openai">OpenAI</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="settings__row">
+              <label for="apiKey">API Key</label>
+              <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off" />
+            </div>
+
+            <div class="settings__row">
+              <button class="btn" id="testKey" type="button">Test key</button>
+              <button class="btn" id="saveKey" type="button">Save</button>
+              <button class="btn" id="clearKey" type="button">Clear</button>
+            </div>
+
+            <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
+          </section>
+        </div>
+      </article>
+
+      <article class="card" style="margin-top:12px" id="aboutSupportCard">
+        <div class="card__body">
+          <h2 class="card__title">Support</h2>
+          <p class="card__desc">If you enjoy the tools, you can support the project here:</p>
+          <div class="card__actions">
+            <a class="btn btn--primary" id="aboutSupportLink" href="#" target="_blank" rel="noopener">Buy me a coffee ☕</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </template>
+
   <script src="assets/data.js"></script>
   <script src="assets/app.js"></script>
 </body>
