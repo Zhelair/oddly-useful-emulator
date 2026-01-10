@@ -91,3 +91,33 @@ document.addEventListener("click", (e) => {
 
 // ====== INITIAL LOAD ======
 navigate("home");
+
+// ====== SETTINGS MODAL (SELECT) ======
+const settingsModal = document.getElementById("settingsModal");
+const openSettings = document.getElementById("openSettings");
+const closeSettings = document.getElementById("closeSettings");
+
+function openModal() {
+  if (!settingsModal) return;
+  settingsModal.hidden = false;
+}
+
+function closeModal() {
+  if (!settingsModal) return;
+  settingsModal.hidden = true;
+}
+
+if (openSettings) openSettings.addEventListener("click", openModal);
+if (closeSettings) closeSettings.addEventListener("click", closeModal);
+
+// click outside panel closes
+if (settingsModal) {
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) closeModal();
+  });
+}
+
+// ESC closes
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && settingsModal && !settingsModal.hidden) closeModal();
+});
