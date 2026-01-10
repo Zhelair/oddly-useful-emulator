@@ -200,8 +200,43 @@
         <button class="buddy__mod is-active" data-module="a" type="button">Module A — Introduce Yourself</button>
         <button class="buddy__mod" data-module="b" type="button">Module B — Golden Way</button>
         <button class="buddy__mod" data-module="c" type="button">Module C — Golden Examples</button>
+        <button class="buddy__mod" data-module="d" type="button">Prompt Check (Beta)</button>
       </aside>
       <section class="buddy__main" id="buddyMain"></section>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-buddy-locked">
+  <div class="module">
+    <header class="module__header">
+      <h2 class="module__title">🔒 Prompting Buddy (Premium)</h2>
+      <p class="module__sub">A calm toolkit for people who want AI to work <em>with</em> them — not against them.</p>
+    </header>
+    <div class="card card--flat">
+      <div class="card__body">
+        <p class="card__desc">Prompting Buddy is built from real work: planning, debugging, writing, and building without chaos.</p>
+        <ul class="tips__list">
+          <li>Turn messy ideas into clear prompts</li>
+          <li>Teach AI your working style</li>
+          <li>Plan first — execute later</li>
+        </ul>
+        <div class="card__actions">
+          <a class="btn btn--primary" id="premiumBuy" href="#" target="_blank" rel="noopener">Get access on BuyMeACoffee ☕</a>
+          <button class="btn" id="premiumHave" type="button">I already have a passphrase</button>
+        </div>
+        <div id="premiumUnlock" class="unlock" hidden>
+          <label class="field">
+            <span class="field__label">Enter passphrase</span>
+            <input class="field__input" id="premiumPass" type="text" placeholder="e.g. ODDLY-USEFUL-2026" autocomplete="off"/>
+          </label>
+          <div class="panel__actions">
+            <button class="btn btn--primary" id="premiumUnlockBtn" type="button">Unlock</button>
+          </div>
+          <div class="settings__status" id="premiumStatus" aria-live="polite"></div>
+        </div>
+        <p class="panel__note">🔐 No accounts. No tracking. Unlocking is stored locally in your browser.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -308,6 +343,45 @@
     <section class="block"><h3>⚠️ Improved Prompt</h3><pre class="block__text" id="cImproved"></pre></section>
     <section class="block"><h3>🟡 Golden Prompt</h3><pre class="block__text" id="cGolden"></pre></section>
     <section class="block"><h3>Why this works</h3><div class="block__text" id="cWhy"></div></section>
+  </div>
+</template>
+
+<template id="tpl-buddy-module-d">
+  <div class="module">
+    <header class="module__header">
+      <h2 class="module__title">Prompt Check (Beta)</h2>
+      <p class="module__sub">Improve your prompt <em>before</em> you run it. This reviews clarity — it does not execute the task.</p>
+      <div class="statusline" id="pcStatus" aria-live="polite"></div>
+    </header>
+
+    <div class="panels">
+      <section class="panel">
+        <h3 class="panel__title">Your prompt</h3>
+        <textarea class="output output--input" id="pcInput" rows="10" placeholder="Paste your prompt here — messy is fine. This tool is for improving prompts, not judging them."></textarea>
+        <p class="panel__note">Short or half-formed prompts are okay. Empty prompts won’t be checked.</p>
+
+        <div class="settings__row">
+          <label for="pcModel">AI model</label>
+          <select id="pcModel">
+            <option value="deepseek-chat">DeepSeek (recommended)</option>
+          </select>
+        </div>
+
+        <div class="panel__actions">
+          <button class="btn btn--primary" id="pcRun" type="button">Check prompt</button>
+        </div>
+        <p class="panel__note">Uses your API key. Runs only when you click.</p>
+        <div class="settings__status" id="pcError" aria-live="polite"></div>
+      </section>
+
+      <section class="panel">
+        <h3 class="panel__title">Results</h3>
+        <div class="pc" id="pcOut">
+          <div class="pc__empty">Run Prompt Check to see feedback here.</div>
+        </div>
+      </section>
+    </div>
+    <p class="panel__note">🔐 Prompt Check runs locally in your browser using your API key. No prompts or keys are stored or tracked.</p>
   </div>
 </template>
 

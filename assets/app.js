@@ -3,6 +3,17 @@
   const screenMenu = document.getElementById("screenMenu");
   const screenContent = document.getElementById("screenContent");
   const supportUrl = data.supportUrl || "#";
+  const premium = data.premium || {};
+  const premiumProductUrl = premium.productUrl || supportUrl;
+  const premiumPassphrases = Array.isArray(premium.passphrases) ? premium.passphrases : [];
+
+  const LS = {
+    premiumUnlocked: "ou_premium_unlocked",
+    tipPcOpened: "ou_tip_pc_opened",
+    tipPcFocus: "ou_tip_pc_focus",
+    tipPcRun: "ou_tip_pc_run",
+    tipPcGolden: "ou_tip_pc_golden",
+  };
 
   document.getElementById("year").textContent = new Date().getFullYear();
   document.getElementById("footerSupport").href = supportUrl;
@@ -115,7 +126,34 @@
   }
   function openBuddy(){
     load(screenContent,"tpl-content-aiguide-buddy");
-    initBuddy("a");
+    if(isPremiumUnlocked()) initBuddy("a");
+    else showPremiumGate();
+  }
+
+  function isPremiumUnlocked(){
+    return localStorage.getItem(LS.premiumUnlocked) === "1";
+  }
+
+  function showPremiumGate(){
+    const main=document.getElementById("buddyMain");
+    load(main, "tpl-buddy-locked");
+    const buy=document.getElementById("premiumBuy");
+    const have=document.getElementById("premiumHave");
+    const wrap=document.getElementById("premiumUnlock");
+    const pass=document.getElementById("premiumPass");
+    const btn=document.getElementById("premiumUnlockBtn");
+    const status=document.getElementById("premiumStatus");
+    if(buy) buy.href = premiumProductUrl;
+    if(have) have.onclick = ()=>{ wrap.hidden=false; pass?.focus(); };
+    if(btn) btn.onclick = ()=>{
+      const v=(pass?.value||"").trim();
+      if(!v){ status.textContent="Paste a passphrase to unlock."; return; }
+      const ok = premiumPassphrases.some(p=>String(p).trim()===v);
+      if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
+      localStorage.setItem(LS.premiumUnlocked,"1");
+      status.textContent="✅ Premium enabled for this browser.";
+      setTimeout(()=>initBuddy("a"), 450);
+    };
   }
   function initBuddy(key){
     const main=document.getElementById("buddyMain");
@@ -124,12 +162,228 @@
       if(k==="a") load(main,"tpl-buddy-module-a");
       if(k==="b") load(main,"tpl-buddy-module-b");
       if(k==="c") load(main,"tpl-buddy-module-c");
+      if(k==="d") load(main,"tpl-buddy-module-d");
       if(k==="a") initModuleA();
       if(k==="b") initModuleB();
       if(k==="c") initModuleC();
+      if(k==="d") initModuleD();
     };
     document.querySelectorAll(".buddy__mod").forEach(b=>b.onclick=()=>set(b.dataset.module));
     set(key||"a");
+  }
+
+  // PROMPT CHECK (DeepSeek)
+  const PROMPT_CHECK_SYSTEM = [
+    "You are an expert AI prompt reviewer and teacher.",
+    "",
+    "Your task is NOT to execute the user’s request.",
+    "Your task is to analyze the quality of the prompt itself.",
+    "",
+    "Behave like a calm, precise mentor.",
+    "Never judge the user.",
+    "Never mock the prompt.",
+    "Never add unnecessary verbosity.",
+    "",
+    "Follow this process exactly:",
+    "1) Diagnose how an AI model would likely interpret the prompt.",
+    "   - Identify ambiguity, missing context, conflicting instructions, or hidden assumptions.",
+    "   - Be factual and concise.",
+    "2) Identify what information is missing or under-specified.",
+    "   - Examples: goal, audience, format, constraints, success criteria.",
+    "   - Do not invent requirements. Only suggest what would improve clarity.",
+    "3) Suggest concrete improvements.",
+    "   - Use actionable language (“Clarify X”, “Specify Y”).",
+    "   - Avoid abstract theory.",
+    "4) Produce a revised “Golden Prompt”.",
+    "   - Preserve the user’s original intent.",
+    "   - Remove ambiguity.",
+    "   - Separate planning from execution if relevant.",
+    "   - Do NOT add new goals or features.",
+    "",
+    "Rules:",
+    "- Do not execute the task described in the prompt.",
+    "- Do not provide final answers to the task itself.",
+    "- Do not lecture.",
+    "- Do not over-explain.",
+    "- If the prompt is already strong, explicitly say so.",
+    "",
+    "Tone:",
+    "- Calm",
+    "- Neutral",
+    "- Teacher-like",
+    "- Respectful",
+    "",
+    "Output structure must be exactly:",
+    "Diagnosis:",
+    "- bullet points",
+    "",
+    "What’s missing:",
+    "- bullet points (or “Nothing critical missing”)",
+    "",
+    "Suggested improvements:",
+    "- bullet points",
+    "",
+    "Golden Prompt:",
+    "- a single, clean prompt block",
+  ].join("\n");
+
+  function initModuleD(){
+    if(!isPremiumUnlocked()) { showPremiumGate(); return; }
+
+    const input=document.getElementById("pcInput");
+    const run=document.getElementById("pcRun");
+    const out=document.getElementById("pcOut");
+    const err=document.getElementById("pcError");
+    const status=document.getElementById("pcStatus");
+    const modelSel=document.getElementById("pcModel");
+
+    const oneTime = (key, fn) => {
+      if(localStorage.getItem(key)==="1") return;
+      localStorage.setItem(key,"1");
+      fn();
+    };
+    const flashStatus = (txt, ms=2600) => {
+      if(!status) return;
+      status.textContent = txt || "";
+      status.classList.add("is-on");
+      setTimeout(()=>{ status.classList.remove("is-on"); status.textContent=""; }, ms);
+    };
+
+    oneTime(LS.tipPcOpened, ()=>flashStatus("Prompt Check reviews your prompt — it does not run the task.", 3200));
+    if(input){
+      input.addEventListener("focus", ()=>{
+        if(localStorage.getItem(LS.tipPcFocus)==="1") return;
+        localStorage.setItem(LS.tipPcFocus,"1");
+        flashStatus("Messy prompts are fine. This tool exists to clean them up.", 2800);
+      }, { once:false });
+    }
+    if(run){
+      run.addEventListener("pointerenter", ()=>{
+        if(localStorage.getItem(LS.tipPcRun)==="1") return;
+        localStorage.setItem(LS.tipPcRun,"1");
+        flashStatus("This analyzes clarity, not results.", 2400);
+      }, { once:true });
+    }
+
+    run.onclick = async ()=>{
+      err.textContent="";
+      const prompt=(input?.value||"").trim();
+      if(!prompt){ err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
+      const apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
+      if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
+      out.innerHTML = '<div class="pc__empty">Reviewing your prompt…<div class="pc__sub">Thinking like an AI — not executing like one.</div></div>';
+      flashStatus("Reviewing your prompt…", 1800);
+      try{
+        const model = (modelSel?.value||"deepseek-chat").trim();
+        const text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
+        const parsed = parsePromptCheck(text);
+        renderPromptCheck(out, parsed, text);
+        flashStatus("Prompt reviewed.", 2200);
+      }catch(ex){
+        out.innerHTML = '<div class="pc__empty">Couldn’t reach the model just now.<div class="pc__sub">Try again in a moment.</div></div>';
+        err.textContent = "Couldn’t reach the model just now. Try again in a moment.";
+      }
+    };
+  }
+
+  async function deepSeekPromptCheck({ apiKey, model, userPrompt }){
+    const url = "https://api.deepseek.com/chat/completions";
+    const payload = {
+      model: model || "deepseek-chat",
+      messages: [
+        { role: "system", content: PROMPT_CHECK_SYSTEM },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.2,
+      max_tokens: 900
+    };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok){
+      const t = await res.text().catch(()=>"");
+      throw new Error(`DeepSeek error ${res.status}: ${t}`);
+    }
+    const json = await res.json();
+    const content = json?.choices?.[0]?.message?.content;
+    if(!content) throw new Error("Empty response");
+    return String(content);
+  }
+
+  function parsePromptCheck(text){
+    const get = (name) => {
+      const re = new RegExp(`(?:${name}):\\s*([\\s\\S]*?)(?=\\n\\s*(Diagnosis|What’s missing|What's missing|Suggested improvements|Golden Prompt):|$)`, "i");
+      const m = String(text).match(re);
+      return (m && m[1]) ? m[1].trim() : "";
+    };
+    const diagnosis = get("Diagnosis");
+    const missing = get("What’s missing|What's missing");
+    const improvements = get("Suggested improvements");
+    const golden = get("Golden Prompt");
+    return { diagnosis, missing, improvements, golden };
+  }
+
+  function toBullets(block){
+    const lines = String(block||"").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+    const items = lines.map(l=>l.replace(/^[-•\*]\s*/, "")).filter(Boolean);
+    return items;
+  }
+
+  function renderPromptCheck(container, parsed, raw){
+    const diag = toBullets(parsed.diagnosis);
+    const miss = toBullets(parsed.missing);
+    const impr = toBullets(parsed.improvements);
+    const golden = (parsed.golden||"").trim();
+
+    // Fallback: if parsing fails, show raw.
+    const ok = (diag.length || miss.length || impr.length || golden);
+    if(!ok){
+      container.innerHTML = `<div class="pc__section"><div class="pc__h">Result</div><pre class="pc__pre">${escapeHtml(raw)}</pre></div>`;
+      return;
+    }
+
+    const mkList = (items)=> items.length ? `<ul class="pc__list">${items.map(i=>`<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<div class="pc__muted">Nothing critical missing.</div>`;
+    container.innerHTML = `
+      <section class="pc__section">
+        <div class="pc__h">Diagnosis</div>
+        <div class="pc__sub">How an AI would likely interpret this prompt</div>
+        ${mkList(diag)}
+      </section>
+      <section class="pc__section">
+        <div class="pc__h">What’s missing</div>
+        ${miss.length ? mkList(miss) : `<div class="pc__muted">Nothing critical missing.</div>`}
+      </section>
+      <section class="pc__section">
+        <div class="pc__h">Suggested improvements</div>
+        ${mkList(impr)}
+      </section>
+      <section class="pc__section pc__section--gold">
+        <div class="pc__h">🟡 Golden Prompt</div>
+        <div class="pc__sub">Use as-is, or adapt it to your style.</div>
+        <pre class="pc__pre" id="pcGolden">${escapeHtml(golden || "(No golden prompt returned)")}</pre>
+        <div class="pc__actions">
+          <button class="btn btn--primary" id="pcCopyGolden" type="button">Copy</button>
+        </div>
+      </section>
+    `;
+
+    const copyBtn = document.getElementById("pcCopyGolden");
+    copyBtn?.addEventListener("click", async()=>{
+      const txt = document.getElementById("pcGolden")?.textContent || "";
+      await navigator.clipboard.writeText(txt);
+      copyBtn.textContent = "Copied.";
+      setTimeout(()=>copyBtn.textContent="Copy", 1100);
+      if(localStorage.getItem(LS.tipPcGolden)!=="1"){
+        localStorage.setItem(LS.tipPcGolden,"1");
+        const st=document.getElementById("pcStatus");
+        if(st){ st.textContent="Use this as-is, or adapt it to your style."; setTimeout(()=>st.textContent="", 2400); }
+      }
+    });
   }
 
   function initModuleA(){

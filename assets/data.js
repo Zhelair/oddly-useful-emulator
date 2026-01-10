@@ -1,5 +1,13 @@
 window.OU_DATA = {
   supportUrl: "https://buymeacoffee.com/niksales73l",
+  premium: {
+    // Where the Premium button should send people.
+    // Tip: replace with your BuyMeACoffee *product* link when you create it.
+    productUrl: "https://buymeacoffee.com/niksales73l",
+    // One global passphrase (simple launch model). Change anytime.
+    // Note: this is light protection (works on GitHub Pages without a backend).
+    passphrases: ["ODDLY-USEFUL-2026"],
+  },
   aboutText: [
     "I build small, thoughtful software projects that are meant to be used — not optimized or exploited.",
     "My work focuses on calm design, privacy-first logic, and tools that reduce friction rather than add pressure.",
