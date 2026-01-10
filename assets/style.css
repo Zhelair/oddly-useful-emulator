@@ -8,6 +8,14 @@ a{color:inherit}button,a.navbtn{font:inherit}
 .navbtn:hover{border-color:rgba(0,0,0,.18);background:rgba(255,255,255,.92)}
 .console{min-height:calc(100vh - 110px);display:grid;place-items:center;padding:18px 12px}
 .screen{width:min(1200px,94vw);aspect-ratio:4/3;border-radius:18px;border:1px solid rgba(255,255,255,.22);background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06));box-shadow:0 30px 90px rgba(0,0,0,.55);overflow:hidden;position:relative}
+
+/* Desktop: make the “cabinet” feel bigger without touching mobile */
+@media (min-width: 1100px){
+  body{font-size:17px}
+  .console{padding:22px 14px}
+  .screen{width:min(1480px,96vw)}
+  .home__headline{font-size:30px}
+}
 .screen__bg{position:absolute;inset:0;opacity:.55;background:radial-gradient(70% 55% at 70% 30%,rgba(255,138,61,.18),transparent 60%),radial-gradient(60% 50% at 20% 65%,rgba(44,130,126,.16),transparent 60%),linear-gradient(180deg,rgba(245,239,226,.12),rgba(12,12,13,.35));pointer-events:none}
 .screen:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.05),rgba(255,255,255,.05) 1px,rgba(0,0,0,0) 4px,rgba(0,0,0,0) 7px);opacity:.22;pointer-events:none}
 .screen__ui{position:relative;height:100%;display:grid;grid-template-columns:240px 1fr;gap:14px;padding:14px}
@@ -31,6 +39,17 @@ a{color:inherit}button,a.navbtn{font:inherit}
 .card__desc{margin:0 0 10px;opacity:.86;line-height:1.4;white-space:pre-line}
 .featured__label{font-size:12px;letter-spacing:.08em;opacity:.65;margin-bottom:6px;text-transform:uppercase}
 .card__actions{display:flex;gap:8px;flex-wrap:wrap}
+.card__note{margin:10px 0 0;opacity:.86;line-height:1.4}
+
+.tips{display:grid;grid-template-columns:1fr;gap:10px;margin:10px 0}
+.tips__box{border:1px solid rgba(0,0,0,.10);border-radius:14px;background:rgba(255,255,255,.60);padding:10px}
+.tips__box--dont{background:rgba(255,255,255,.52)}
+.tips__title{margin:0 0 6px;font-size:14px;letter-spacing:.04em;text-transform:uppercase;opacity:.75}
+.tips__list{margin:0;padding-left:16px;line-height:1.35}
+.tips__list li{margin:6px 0}
+@media (min-width: 900px){
+  .tips{grid-template-columns:1fr 1fr}
+}
 .btn{padding:9px 12px;border-radius:14px;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.92);cursor:pointer;text-decoration:none;color:#1c1c1c}
 .btn:hover{background:rgba(255,255,255,1);border-color:rgba(0,0,0,.18)}
 .btn--primary{background:rgba(255,138,61,.18);border-color:rgba(255,138,61,.35)}
