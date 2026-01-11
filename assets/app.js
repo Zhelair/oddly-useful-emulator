@@ -49,7 +49,7 @@
 
   // HOUSE helper (calls your Cloudflare Worker)
   const HOUSE = {
-    promptCheck: async ({ endpoint, passphrase, model, userPrompt, system, dailyLimit }) => {
+    promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
       const base = String(endpoint || "").replace(/\/+$/, ""); // remove trailing /
       const url = base + "/prompt-check";
 
@@ -57,21 +57,19 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Keep header (harder to accidentally log in some tooling), but also include in body for clarity.
-          "X-Passphrase": String(passphrase || "")
+          "X-OU-PASS": String(passphrase || "")
         },
         body: JSON.stringify({
-          access: "included",
-          dailyLimit: Number(dailyLimit || 15),
           model: String(model || "deepseek-chat"),
-          prompt: String(userPrompt || ""),
-          passphrase: String(passphrase || ""),
-          system: String(system || "")
+          prompt: String(userPrompt || "")
         })
       });
 
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || `House error ${res.status}`);
+      if (!res.ok) {
+        throw new Error(json.error || `House error ${res.status}`);
+      }
+
       if (!json.text) throw new Error("Empty response from House");
       return String(json.text);
     }
@@ -429,7 +427,7 @@
           text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
         }else{
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
-          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt, system: PROMPT_CHECK_SYSTEM, dailyLimit: HOUSE_DAILY_LIMIT });
+          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
           incHouseUsage();
           updateUsageUI();
         }

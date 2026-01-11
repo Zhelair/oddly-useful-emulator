@@ -170,3 +170,53 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
 .settings__note{font-size:12px;opacity:.82;margin-top:8px;line-height:1.35;}
 
 .output--input{width:100%;min-height:220px;resize:vertical;overflow:auto;-webkit-overflow-scrolling:touch}
+
+
+/* === UI Sprint 1: Mobile nav polish === */
+@media (max-width: 640px){
+  /* Top nav: make pills larger + horizontal scroll */
+  .topbar{ padding: 12px 12px 6px; }
+  .topnav{
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+  .topnav .btn{
+    padding: 12px 16px;
+    font-size: 16px;
+    line-height: 1.1;
+    min-height: 44px;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  /* AI Guide section pills: bigger + easier swipe */
+  .aiguideTabs{
+    gap: 10px;
+    padding: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .aiguideTabs .btn{
+    padding: 12px 16px;
+    font-size: 16px;
+    min-height: 44px;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  /* Slightly larger touch targets in left menu too */
+  .menu__btn{
+    padding: 12px 12px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .menu__scroll{
+    max-height: calc(100% - 44px);
+  }
+}
