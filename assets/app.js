@@ -50,28 +50,40 @@
   // HOUSE helper (calls your Cloudflare Worker)
   const HOUSE = {
     promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
-      const base = String(endpoint || "").replace(/\/+$/, ""); // remove trailing /
+      const base = String(endpoint || "").replace(/\/\/+$/, ""); // remove trailing /
       const url = base + "/prompt-check";
 
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-OU-PASS": String(passphrase || "")
+          // Match the Worker’s expected header + CORS allowlist:
+          "X-Passphrase": String(passphrase || "")
         },
         body: JSON.stringify({
           model: String(model || "deepseek-chat"),
-          prompt: String(userPrompt || "")
+          prompt: String(userPrompt || ""),
+          // Also send in body as a robust fallback (headers can be finicky):
+          passphrase: String(passphrase || "")
         })
       });
 
-      const json = await res.json().catch(() => ({}));
+      // Worker returns JSON on errors (e.g., { ok:false, error:"..." })
       if (!res.ok) {
-        throw new Error(json.error || `House error ${res.status}`);
+        let msg = "";
+        try {
+          const j = await res.json();
+          msg = j && (j.error || j.message) ? String(j.error || j.message) : "";
+        } catch (e) {
+          msg = await res.text().catch(() => "");
+        }
+        throw new Error(msg || `House error ${res.status}`);
       }
 
-      if (!json.text) throw new Error("Empty response from House");
-      return String(json.text);
+      // Worker returns plain text on success (content-type: text/plain)
+      const text = await res.text().catch(() => "");
+      if (!text || !String(text).trim()) throw new Error("Empty response from House");
+      return String(text);
     }
   };
 

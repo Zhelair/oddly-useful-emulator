@@ -6,7 +6,7 @@ window.OU_DATA = {
     productUrl: "https://buymeacoffee.com/niksales73l",
     // One global passphrase (simple launch model). Change anytime.
     // Note: this is light protection (works on GitHub Pages without a backend).
-    passphrases: ["ODDLY-USEFUL-2026", "ODDLY-USEFUL-2026-B", "Nikitos", "2026"],
+    passphrases: ["ODDLY-USEFUL-2026"]
   },
   aboutText: [
     "I build small, thoughtful software projects that are meant to be used — not optimized or exploited.",

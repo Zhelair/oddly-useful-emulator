@@ -69,10 +69,8 @@ export class RateLimiter {
   }
 }
 
-async function checkRateLimit(env, limit, bucket) {
-  // Bucket MUST be stable per user/passphrase, otherwise one user burns everyone.
-  const safeBucket = String(bucket || "global").slice(0, 120);
-  const id = env.RATE_LIMITER.idFromName(safeBucket);
+async function checkRateLimit(env, limit) {
+  const id = env.RATE_LIMITER.idFromName("global");
   const stub = env.RATE_LIMITER.get(id);
   const res = await stub.fetch(`https://do/check?limit=${limit}`);
   const j = await res.json();
@@ -138,13 +136,7 @@ export default {
       return textOk(request, "ok");
     }
 
-    // Accept multiple paths so old frontends don't break.
-    const PROMPT_PATHS = new Set([
-      "/prompt-check",              // current
-      "/promptcheck",               // legacy (no hyphen)
-      "/v1/oddlyuseful/promptcheck"  // legacy (versioned)
-    ]);
-    if (!PROMPT_PATHS.has(url.pathname)) {
+    if (url.pathname !== "/prompt-check") {
       return withCors(request, new Response("Not found", { status: 404 }));
     }
 
@@ -166,18 +158,20 @@ export default {
 
     if (!prompt) return textOk(request, ""); // website already blocks empty prompts
 
-    // House (included) mode ALWAYS requires a Premium passphrase.
-    // Store allowed passphrases in the Worker secret ALLOWED_PASSPHRASES (comma or newline separated).
-    const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
-    if (access === "included") {
-      if (!passphrase) return jsonError(request, 401, "Premium passphrase required.");
-      if (!allowed.length) return jsonError(request, 500, "Server missing ALLOWED_PASSPHRASES secret.");
-      if (!allowed.includes(passphrase)) return jsonError(request, 401, "Premium passphrase incorrect.");
-    }
+    // Gate: Included key requires passphrase (optional - if you want)
+    // If you want it open without a passphrase, just delete this block.
+    // Passphrase gate (optional). Disabled by default to keep things simple.
+    // If you want to require a passphrase for the included key, uncomment below.
+    // const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
+    // if (access === "included" && allowed.length) {
+    //   if (!allowed.includes(passphrase)) {
+    //     return jsonError(request, 401, "Passphrase required (or incorrect).");
+    //   }
+    // }
 
     // Rate limit only for included key
     if (access === "included") {
-      const rl = await checkRateLimit(env, dailyLimit, `pp:${passphrase}`);
+      const rl = await checkRateLimit(env, dailyLimit);
       if (!rl.ok) {
         return jsonError(request, 429, `Daily limit reached (${rl.limit}/day).`);
       }
