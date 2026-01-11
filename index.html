@@ -16,11 +16,11 @@
     </div>
   </div>
   <nav class="topnav" aria-label="Primary">
-    <button class="navbtn" data-route="home" type="button">Home</button>
-    <button class="navbtn" data-route="projects" type="button">Projects</button>
-    <button class="navbtn" data-route="posts" type="button">Posts</button>
-    <button class="navbtn" data-route="aiguide" type="button">AI Guide</button>
-    <button class="navbtn" data-route="about" type="button">About</button>
+    <button class="navbtn" data-route="home" type="button" id="topHome">Home</button>
+    <button class="navbtn" data-route="projects" type="button" id="topProjects">Projects</button>
+    <button class="navbtn" data-route="posts" type="button" id="topPosts">Posts</button>
+    <button class="navbtn" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+    <button class="navbtn" data-route="about" type="button" id="topAbout">About</button>
   </nav>
 </header>
 
@@ -39,7 +39,7 @@
 <footer class="footer">
   <span>© <span id="year"></span> Oddly Useful</span>
   <span class="footer__sep">·</span>
-  <a class="footer__link" href="#" data-route="about">About</a>
+  <a class="footer__link" href="#" data-route="about" id="topAbout">About</a>
   <span class="footer__sep">·</span>
   <a class="footer__link" id="footerSupport" href="#" target="_blank" rel="noopener">Support ☕</a>
 </footer>
@@ -48,11 +48,11 @@
 <template id="tpl-menu-home">
   <div class="menu">
     <div class="menu__title">MENU</div>
-    <button class="menu__item is-active" data-route="home" type="button">Home</button>
-    <button class="menu__item" data-route="projects" type="button">Projects</button>
-    <button class="menu__item" data-route="posts" type="button">Posts</button>
-    <button class="menu__item" data-route="aiguide" type="button">AI Guide</button>
-    <button class="menu__item" data-route="about" type="button">About</button>
+    <button class="menu__item is-active" data-route="home" type="button" id="topHome">Home</button>
+    <button class="menu__item" data-route="projects" type="button" id="topProjects">Projects</button>
+    <button class="menu__item" data-route="posts" type="button" id="topPosts">Posts</button>
+    <button class="menu__item" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+    <button class="menu__item" data-route="about" type="button" id="topAbout">About</button>
     <div class="menu__hint">Press START</div>
   </div>
 </template>
@@ -60,16 +60,16 @@
 <template id="tpl-content-home">
   <div class="home">
     <div class="home__attract" id="homeAttract">
-      <div class="home__pressstart" id="pressStart" role="button" tabindex="0">PRESS START</div>
+      <div class="home__pressstart" id="pressStart" role="button" tabindex="0"><span id="pressStartText">PRESS START</span></div>
     </div>
     <div class="home__active" id="homeActive" hidden>
       <div class="home__lead">
         <h2 class="home__headline">Oddly Useful</h2>
-        <p class="home__subhead">A retro-styled launcher for practical little tools: mood tracking, counters, cooking, and more.</p>
+        <p class="home__subhead" id="homeSubhead">A retro-styled launcher for practical little tools: mood tracking, counters, cooking, and more.</p>
       </div>
       <article class="card" id="featuredCard">
         <div class="card__body">
-          <div class="featured__label">Featured today</div>
+          <div class="featured__label" id="featuredLabel"><span id="featuredLabel">Featured today</span></div>
           <h2 class="card__title" id="featuredTitle">Project</h2>
           <p class="card__desc" id="featuredDesc"></p>
           <div class="card__actions">
@@ -86,11 +86,11 @@
   <div class="menu">
     <div class="menu__title">PROJECTS</div>
     <div class="menu__group">
-      <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
-      <button class="menu__item menu__item--mini is-active" data-route="projects" type="button">Projects</button>
-      <button class="menu__item menu__item--mini" data-route="posts" type="button">Posts</button>
-      <button class="menu__item menu__item--mini" data-route="aiguide" type="button">AI Guide</button>
-      <button class="menu__item menu__item--mini" data-route="about" type="button">About</button>
+      <button class="menu__item menu__item--mini" data-route="home" type="button" id="topHome">Home</button>
+      <button class="menu__item menu__item--mini is-active" data-route="projects" type="button" id="topProjects">Projects</button>
+      <button class="menu__item menu__item--mini" data-route="posts" type="button" id="topPosts">Posts</button>
+      <button class="menu__item menu__item--mini" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+      <button class="menu__item menu__item--mini" data-route="about" type="button" id="topAbout">About</button>
     </div>
     <div class="menu__sep"></div>
     <div class="menu__scroll" id="projectsList"></div>
@@ -113,11 +113,11 @@
   <div class="menu">
     <div class="menu__title">POSTS</div>
     <div class="menu__group">
-      <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
-      <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
-      <button class="menu__item menu__item--mini is-active" data-route="posts" type="button">Posts</button>
-      <button class="menu__item menu__item--mini" data-route="aiguide" type="button">AI Guide</button>
-      <button class="menu__item menu__item--mini" data-route="about" type="button">About</button>
+      <button class="menu__item menu__item--mini" data-route="home" type="button" id="topHome">Home</button>
+      <button class="menu__item menu__item--mini" data-route="projects" type="button" id="topProjects">Projects</button>
+      <button class="menu__item menu__item--mini is-active" data-route="posts" type="button" id="topPosts">Posts</button>
+      <button class="menu__item menu__item--mini" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+      <button class="menu__item menu__item--mini" data-route="about" type="button" id="topAbout">About</button>
     </div>
     <div class="menu__sep"></div>
     <div class="menu__scroll" id="postsList"></div>
@@ -140,11 +140,11 @@
   <div class="menu">
     <div class="menu__title">AI GUIDE</div>
     <div class="menu__group">
-      <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
-      <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
-      <button class="menu__item menu__item--mini" data-route="posts" type="button">Posts</button>
-      <button class="menu__item menu__item--mini is-active" data-route="aiguide" type="button">AI Guide</button>
-      <button class="menu__item menu__item--mini" data-route="about" type="button">About</button>
+      <button class="menu__item menu__item--mini" data-route="home" type="button" id="topHome">Home</button>
+      <button class="menu__item menu__item--mini" data-route="projects" type="button" id="topProjects">Projects</button>
+      <button class="menu__item menu__item--mini" data-route="posts" type="button" id="topPosts">Posts</button>
+      <button class="menu__item menu__item--mini is-active" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+      <button class="menu__item menu__item--mini" data-route="about" type="button" id="topAbout">About</button>
     </div>
     <div class="menu__sep"></div>
 
@@ -374,19 +374,19 @@
 <template id="tpl-menu-about">
   <div class="menu">
     <div class="menu__title">ABOUT</div>
-    <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
-    <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
-    <button class="menu__item menu__item--mini" data-route="posts" type="button">Posts</button>
-    <button class="menu__item menu__item--mini" data-route="aiguide" type="button">AI Guide</button>
-    <button class="menu__item menu__item--mini is-active" data-route="about" type="button">About</button>
-    <div class="menu__hint">Support is optional</div>
+    <button class="menu__item menu__item--mini" data-route="home" type="button" id="topHome">Home</button>
+    <button class="menu__item menu__item--mini" data-route="projects" type="button" id="topProjects">Projects</button>
+    <button class="menu__item menu__item--mini" data-route="posts" type="button" id="topPosts">Posts</button>
+    <button class="menu__item menu__item--mini" data-route="aiguide" type="button" id="topAiguide">AI Guide</button>
+    <button class="menu__item menu__item--mini is-active" data-route="about" type="button" id="topAbout">About</button>
+    <div class="menu__hint" id="aboutMenuHint">Support is optional</div>
   </div>
 </template>
 
 <template id="tpl-content-about">
   <div class="about">
     <article class="card"><div class="card__body">
-      <h2 class="card__title">About Oddly Useful</h2>
+      <h2 class="card__title" id="aboutTitle">About Oddly Useful</h2>
       <p class="card__desc" id="aboutText"></p>
       <div class="card__actions">
         <a class="btn btn--primary" id="aboutSupport" href="#" target="_blank" rel="noopener">Support on Buy Me a Coffee ☕</a>
@@ -394,8 +394,18 @@
     </div></article>
 
     <article class="card"><div class="card__body">
-      <h3 class="card__title card__title--sm">Theme</h3>
-      <p class="card__desc">Themes change visuals only (color, texture, pixelation). Layout stays the same.</p>
+      <h3 class="card__title card__title--sm" id="langTitle">Language</h3>
+      <p class="card__desc" id="langDesc">Translate interface text. Logic stays the same.</p>
+      <div class="settings__row" id="langRow">
+        <label><input type="radio" name="lang" value="en"/> EN</label>
+        <label><input type="radio" name="lang" value="ru"/> RU</label>
+        <label><input type="radio" name="lang" value="bg" disabled/> BG</label>
+      </div>
+    </div></article>
+
+    <article class="card"><div class="card__body">
+      <h3 class="card__title card__title--sm" id="themeTitle">Theme</h3>
+      <p class="card__desc" id="themeDesc"><span id="themeDesc">Themes change visuals only (color, texture, pixelation). Layout stays the same.</span></p>
       <div class="settings__row">
         <label><input type="radio" name="theme" value="retro"/> Retro</label>
         <label><input type="radio" name="theme" value="nostalgia"/> Nostalgia</label>
@@ -404,10 +414,10 @@
     </div></article>
 
     <article class="card"><div class="card__body">
-      <h3 class="card__title card__title--sm">AI (Bring Your Own Key)</h3>
-      <p class="card__desc">Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server. You can remove it anytime by clearing this site’s data.</p>
+      <h3 class="card__title card__title--sm" id="aiTitle">AI (Bring Your Own Key)</h3>
+      <p class="card__desc" id="aiDesc"><span id="aiDesc">Your key is stored only in your browser (localStorage). It is never sent to us or saved on any server. You can remove it anytime by clearing this site’s data.</span></p>
       <div class="settings__row">
-        <label for="aiProvider">Provider</label>
+        <label for="aiProvider" id="lblProvider">Provider</label>
         <select id="aiProvider">
           <option value="openai">OpenAI</option>
           <option value="deepseek">DeepSeek</option>
@@ -415,7 +425,7 @@
         </select>
       </div>
       <div class="settings__row">
-        <label for="aiAccess">Access</label>
+        <label for="aiAccess" id="lblAccess">Access</label>
         <select id="aiAccess">
           <option value="byo">Use my API key (recommended)</option>
           <option value="house">Use included DeepSeek key (15/day)</option>
@@ -423,7 +433,7 @@
       </div>
 
       <div class="settings__row">
-        <label for="apiKey">API Key</label>
+        <label for="apiKey" id="lblApiKey">API Key</label>
         <input id="apiKey" type="password" placeholder="Paste your key…" autocomplete="off"/>
       </div>
       <div class="settings__row">
@@ -431,7 +441,7 @@
         <button class="btn" id="clearKey" type="button">Clear key</button>
       </div>
       <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
-      <div class="settings__note">House key is limited to <b>15 prompt checks/day</b> and <b>2000 words max</b>. Resets at <b>00:00 Sofia</b>.</div>
+      <div class="settings__note" id="houseNote">House key is limited to <b>15 prompt checks/day</b> and <b>2000 words max</b>. Resets at <b>00:00 Sofia</b>.</div>
     </div></article>
   </div>
 </template>
