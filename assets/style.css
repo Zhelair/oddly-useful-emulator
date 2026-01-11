@@ -145,12 +145,20 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
     overflow-x:auto;
     padding:10px;
     border-radius:14px;
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:rgba(255,255,255,.92);
+    backdrop-filter: blur(6px);
+    border:1px solid var(--line);
   }
   .buddy__title{display:none}
   .buddy__mod{
     white-space:nowrap;
     flex:0 0 auto;
-    padding:10px 12px;
+    padding:12px 14px;
+    font-size:16px;
+    min-width:140px;
   }
   .panels{grid-template-columns:1fr}
   .menu__scroll{max-height:none}
