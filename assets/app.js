@@ -1,63 +1,63 @@
 
 /*
- STEP 1 FIX — HOUSE ONLY
- - No BYOK logic
- - No top-level await
- - Always calls House endpoint
+ Oddly Useful Emulator — LOCKED API VERSION
+ Phase 0: Stability first
+ - No BYOK
+ - No House / proxy
+ - Single private API key
 */
 
-(function () {
-  if (!window.OU_DATA || !window.OU_DATA.house || !window.OU_DATA.house.endpoint) {
-    console.error("HOUSE config missing");
+const LOCKED_API_KEY = "PASTE_YOUR_PRIVATE_API_KEY_HERE";
+const API_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
+const MODEL = "deepseek-chat";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.querySelector("button");
+  const input = document.querySelector("textarea");
+  const resultBox = document.querySelector(".results, #results");
+
+  if (!btn || !input || !resultBox) {
+    console.warn("UI elements not found — app.js loaded but UI mismatch.");
     return;
   }
 
-  const HOUSE = window.OU_DATA.house;
-
-  function qs(id) {
-    return document.getElementById(id);
-  }
-
-  function setResult(text) {
-    const el = qs("results");
-    if (el) el.textContent = text;
-  }
-
-  async function checkPrompt() {
-    const promptEl = qs("promptInput");
-    if (!promptEl || !promptEl.value.trim()) {
-      setResult("Please enter a prompt.");
+  btn.addEventListener("click", async () => {
+    const prompt = input.value.trim();
+    if (!prompt) {
+      resultBox.textContent = "Please enter a prompt.";
       return;
     }
 
-    setResult("Checking prompt…");
+    resultBox.textContent = "Thinking…";
 
     try {
-      const res = await fetch(HOUSE.endpoint + "/prompt-check", {
+      const res = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${LOCKED_API_KEY}`
         },
         body: JSON.stringify({
-          prompt: promptEl.value,
-          maxWords: HOUSE.maxWords
+          model: MODEL,
+          messages: [
+            { role: "system", content: "You are a helpful assistant that reviews prompts for clarity." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3
         })
       });
 
       if (!res.ok) {
-        throw new Error("House error " + res.status);
+        throw new Error("API error: " + res.status);
       }
 
       const data = await res.json();
-      setResult(data.result || JSON.stringify(data, null, 2));
+      const text = data.choices?.[0]?.message?.content || "No response.";
+      resultBox.textContent = text;
+
     } catch (err) {
       console.error(err);
-      setResult("Couldn’t reach the model right now. Try again in a moment.");
+      resultBox.textContent = "Could not reach the model. Try again later.";
     }
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const btn = qs("checkPromptBtn");
-    if (btn) btn.addEventListener("click", checkPrompt);
   });
-})();
+});
