@@ -7,7 +7,7 @@
  - Single private API key
 */
 
-const LOCKED_API_KEY = "PASTE_YOUR_PRIVATE_API_KEY_HERE";
+const LOCKED_API_KEY = "sk-164a765f03e146c1bfb4018a5e1e2a6d";
 const API_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
 const MODEL = "deepseek-chat";
 
