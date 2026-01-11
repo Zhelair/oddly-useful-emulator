@@ -69,8 +69,9 @@ export class RateLimiter {
   }
 }
 
-async function checkRateLimit(env, limit) {
-  const id = env.RATE_LIMITER.idFromName("global");
+async function checkRateLimit(env, limit, bucket) {
+  const name = String(bucket || "global");
+  const id = env.RATE_LIMITER.idFromName(name);
   const stub = env.RATE_LIMITER.get(id);
   const res = await stub.fetch(`https://do/check?limit=${limit}`);
   const j = await res.json();
@@ -82,7 +83,7 @@ function normalizePassphrases(raw) {
   // Accept "a,b,c" or "a\nb\nc"
   return String(raw)
     .split(/[\n,]+/g)
-    .map(s => s.trim())
+    .map(s => s.trim().toLowerCase())
     .filter(Boolean);
 }
 
@@ -158,26 +159,23 @@ export default {
 
     if (!prompt) return textOk(request, ""); // website already blocks empty prompts
 
-    // Gate: Included key requires passphrase (optional - if you want)
-    // If you want it open without a passphrase, just delete this block.
-    // Passphrase gate (optional). Disabled by default to keep things simple.
-    // If you want to require a passphrase for the included key, uncomment below.
-    // const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
-    // if (access === "included" && allowed.length) {
-    //   if (!allowed.includes(passphrase)) {
-    //     return jsonError(request, 401, "Passphrase required (or incorrect).");
-    //   }
-    // }
-
-    // Rate limit only for included key
+    // Gate + rate limit: Included key ALWAYS requires a Premium passphrase
     if (access === "included") {
-      const rl = await checkRateLimit(env, dailyLimit);
+      const pass = String(passphrase || "").trim();
+      if (!pass) return jsonError(request, 401, "Premium passphrase required for included key.");
+      const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
+      if (!allowed.length) return jsonError(request, 500, "Server not configured: ALLOWED_PASSPHRASES is empty.");
+      if (!allowed.includes(pass.toLowerCase())) {
+        return jsonError(request, 403, "Invalid Premium passphrase.");
+      }
+
+      const rl = await checkRateLimit(env, dailyLimit, `pp:${pass.toLowerCase()}`);
       if (!rl.ok) {
-        return jsonError(request, 429, `Daily limit reached (${rl.limit}/day).`);
+        return jsonError(request, 429, `Daily limit reached (${rl.count}/${rl.limit}). Try again tomorrow.`);
       }
     }
 
-    const apiKey =
+const apiKey =
       access === "mykey"
         ? String(payload?.apiKey || payload?.key || "")
         : String(env.DEEPSEEK_API_KEY || "");
