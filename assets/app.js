@@ -12,6 +12,75 @@
   const HOUSE_MAX_WORDS = Number(houseCfg.maxWords||2000);
   const HOUSE_TZ = (houseCfg.timezone||"Europe/Sofia").trim();
 
+
+  // House helper (Worker proxy) — provides the built-in 15/day key.
+  // This keeps the frontend simple: it never stores user prompts/keys on a server.
+  const HOUSE = {
+    async promptCheck({ endpoint, passphrase, model, userPrompt }) {
+      if (!endpoint) throw new Error("House endpoint is not configured");
+      const base = (endpoint || "").trim().replace(/\/+$/, "");
+      const url = base + "/prompt-check";
+      const headers = { "Content-Type": "application/json" };
+      if (passphrase) headers["X-OU-PASS"] = passphrase;
+
+      const payload = {
+        data: {
+          model: model || "deepseek-chat",
+          prompt: String(userPrompt || "")
+        }
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      const text = await res.text();
+      let json = null;
+      try { json = text ? JSON.parse(text) : null; } catch(_e) { /* ignore */ }
+
+      if (!res.ok) {
+        const msg = (json && (json.error || json.message)) ? (json.error || json.message) : (text || `HTTP ${res.status}`);
+        throw new Error(msg);
+      }
+
+      // Support a few response shapes
+      if (json && typeof json.text === "string") return json.text;
+      if (json && typeof json.result === "string") return json.result;
+      if (json && json.choices && json.choices[0] && json.choices[0].message && typeof json.choices[0].message.content === "string") {
+        return json.choices[0].message.content;
+      }
+      if (typeof text === "string" && text.trim()) return text;
+      return "";
+    },
+  };
+
+
+
+
+;
+
+      if (passphrase) headers["X-OU-PASS"] = passphrase;
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ model, prompt: userPrompt })
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = null; }
+      if (!res.ok) {
+        // Keep useful error messages (but avoid leaking secrets).
+        const msg = (data && (data.error || data.message)) ? (data.error || data.message) : (text || ("HTTP " + res.status));
+        throw new Error(msg);
+      }
+      // DeepSeek/OpenAI-style: {choices:[{message:{content}}]} or our own {content}
+      const content = data?.content || data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || "";
+      return { content, raw: data };
+    }
+  };
+
   const LS = {
     premiumUnlocked: "ou_premium_unlocked",
     premiumPass: "ou_premium_pass",
@@ -325,14 +394,48 @@
 
     // Access mode (BYO key vs House key)
     const syncAccessUI = ()=>{
-      const mode = localStorage.getItem(LS.aiAccess) || "byo";
-      if(accessSel) accessSel.value = mode;
-      // keep About → Settings dropdown in sync if it exists
+      const mode = "house";
+      localStorage.setItem(LS.aiAccess, mode);
+
+      // Prompt Check panel: lock to included 15/day key
+      if (accessSel){
+        accessSel.innerHTML = "";
+        const opt = document.createElement("option");
+        opt.value = mode;
+        opt.textContent = "Included key (15/day)";
+        accessSel.appendChild(opt);
+        accessSel.value = mode;
+        accessSel.disabled = true;
+      }
+
+      // About → Settings: lock + hide BYOK controls (if present)
       const aboutSel = document.getElementById("aiAccess");
-      if(aboutSel) aboutSel.value = mode;
-      return mode;
+      if (aboutSel){
+        aboutSel.innerHTML = "";
+        const opt2 = document.createElement("option");
+        opt2.value = mode;
+        opt2.textContent = "Use included DeepSeek key (15/day)";
+        aboutSel.appendChild(opt2);
+        aboutSel.value = mode;
+        aboutSel.disabled = true;
+      }
+      const aboutProv = document.getElementById("aiProvider");
+      if (aboutProv){
+        aboutProv.value = "deepseek";
+        aboutProv.disabled = true;
+      }
+      const apiKeyInput = document.getElementById("apiKey");
+      if (apiKeyInput){
+        apiKeyInput.value = "";
+        const row = apiKeyInput.closest("div");
+        if (row) row.style.display = "none";
+      }
+      const testBtn = document.getElementById("testKey");
+      const clearBtn = document.getElementById("clearKey");
+      if (testBtn) testBtn.style.display = "none";
+      if (clearBtn) clearBtn.style.display = "none";
     };
-    const updateUsageUI = ()=>{
+const updateUsageUI = ()=>{
       const mode = syncAccessUI();
       if(!usageEl) return null;
       if(mode!=="house"){ usageEl.textContent=""; return null; }
@@ -379,7 +482,7 @@
       err.textContent="";
       const prompt=(input?.value||"").trim();
       if(!prompt){ err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
-      const mode = (localStorage.getItem(LS.aiAccess)||"house");
+      const mode = ("house");
       const wc = wordCount(prompt);
       if(wc>HOUSE_MAX_WORDS){ err.textContent=`This prompt is too long (${wc} words). Max is ${HOUSE_MAX_WORDS} words.`; return; }
       let apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
@@ -397,12 +500,14 @@
       try{
         const model = (modelSel?.value||"deepseek-chat").trim();
         let text="";
-        // House-only (no BYOK)
-        const pass = (premiumPassphrases[0] || "").trim();
-        if(!HOUSE_ENDPOINT) throw new Error("HOUSE is not defined");
-        text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
-        incHouseUsage();
-        updateUsageUI();
+        if(("house")==="byo"){
+          text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
+        }else{
+          const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
+          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
+          incHouseUsage();
+          updateUsageUI();
+        }
         const parsed = parsePromptCheck(text);
         renderPromptCheck(out, parsed, text);
         flashStatus("Prompt reviewed.", 2200);
@@ -594,25 +699,56 @@
     document.getElementById("aboutText").textContent = data.aboutText || "";
     document.getElementById("aboutSupport").href = supportUrl;
 
-    const saved = localStorage.getItem("ou_theme") || "retro";
-    document.body.dataset.theme = saved;
+    // Theme
+    const savedTheme = localStorage.getItem("ou_theme") || "retro";
+    document.body.dataset.theme = savedTheme;
     document.querySelectorAll('input[name="theme"]').forEach(r=>{
-      r.checked = r.value===saved;
-      r.onchange=()=>{ if(!r.checked) return; document.body.dataset.theme=r.value; localStorage.setItem("ou_theme", r.value); };
+      r.checked = r.value===savedTheme;
+      r.onchange = ()=>{
+        if(!r.checked) return;
+        document.body.dataset.theme = r.value;
+        localStorage.setItem("ou_theme", r.value);
+      };
     });
 
-    const provider=document.getElementById("aiProvider");
-    const access=document.getElementById("aiAccess");
-    const key=document.getElementById("apiKey");
-    const status=document.getElementById("settingsStatus");
-    provider.value = localStorage.getItem("ou_ai_provider") || "openai";
-    access.value = localStorage.getItem(LS.aiAccess) || "byo";
-    key.value = localStorage.getItem("ou_ai_key") || "";
-    provider.onchange=()=>{ localStorage.setItem("ou_ai_provider", provider.value); status.textContent=""; };
-    key.oninput=()=>{ localStorage.setItem("ou_ai_key", key.value); status.textContent=""; };
-    document.getElementById("clearKey").onclick=()=>{ localStorage.removeItem("ou_ai_key"); key.value=""; status.textContent="Key cleared (local only)."; };
-    document.getElementById("testKey").onclick=()=>{ status.textContent = key.value.trim()? "Key saved locally. (API test will be added later.)" : "Paste a key first."; };
-  }
+    // AI settings (House-only)
+    const provider = document.getElementById("aiProvider");
+    const access = document.getElementById("aiAccess");
+    const apiKeyInput = document.getElementById("apiKey");
+    const limitNote = document.getElementById("limitNote");
+
+    if (provider){
+      provider.value = "deepseek";
+      provider.disabled = true;
+    }
+    if (access){
+      access.innerHTML = "";
+      const opt = document.createElement("option");
+      opt.value = "house";
+      opt.textContent = "Use included DeepSeek key (15/day)";
+      access.appendChild(opt);
+      access.value = "house";
+      access.disabled = true;
+    }
+
+    // Remove BYOK UI (inputs/buttons)
+    if (apiKeyInput){
+      apiKeyInput.value = "";
+      const row = apiKeyInput.closest("div");
+      if (row) row.style.display = "none";
+    }
+    const testBtn = document.getElementById("testKey");
+    const clearBtn = document.getElementById("clearKey");
+    if (testBtn) testBtn.style.display = "none";
+    if (clearBtn) clearBtn.style.display = "none";
+
+    // Show limit note
+    if (limitNote){
+      limitNote.textContent = `House key is limited to ${HOUSE_DAILY_LIMIT} prompt checks/day and ${HOUSE_MAX_WORDS} words max. Resets at 00:00 ${HOUSE_TZ.split("/").pop().replace("_"," ")||"local"}.`;
+    }
+}
+
+
 
   // global click handler
   document.addEventListener("click",(e)=>{
