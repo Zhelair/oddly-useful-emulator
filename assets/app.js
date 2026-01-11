@@ -15,19 +15,14 @@
   const LS = {
     premiumUnlocked: "ou_premium_unlocked",
     premiumPass: "ou_premium_pass",
+    aiAccess: "ou_ai_access",
     houseUsage: "ou_house_usage",
     tipPcOpened: "ou_tip_pc_opened",
     tipPcFocus: "ou_tip_pc_focus",
     tipPcRun: "ou_tip_pc_run",
-    tipPcGolden: "ou_tip_pc_golden",
-    aiguideSection: "ou_aiguide_section"
-  };
-
-  // ---------- tiny safe helpers ----------
-  const $ = (id)=>document.getElementById(id);
-  const setText = (id, txt)=>{ const el=$(id); if(el) el.textContent = String(txt||""); };
-  const setHref = (id, href)=>{ const el=$(id); if(el) el.href = href || "#"; };
-  const safeOn = (el, ev, fn)=>{ if(el) el.addEventListener(ev, fn); };
+	  tipPcGolden: "ou_tip_pc_golden",
+	  aiguideSection: "ou_aiguide_section"
+};
 
   // House-key limits (client-side display; server-side enforcement is done by the Worker)
   const sofiaDateKey = ()=>{
@@ -41,10 +36,7 @@
     const dk = sofiaDateKey();
     let obj = null;
     try{ obj = JSON.parse(localStorage.getItem(LS.houseUsage)||"null"); }catch(e){ obj=null; }
-    if(!obj || obj.date!==dk){
-      obj = {date: dk, count: 0};
-      localStorage.setItem(LS.houseUsage, JSON.stringify(obj));
-    }
+    if(!obj || obj.date!==dk){ obj = {date: dk, count: 0}; localStorage.setItem(LS.houseUsage, JSON.stringify(obj)); }
     return obj;
   };
   const incHouseUsage = ()=>{
@@ -55,35 +47,10 @@
   };
   const wordCount = (s)=> (String(s||"").trim().match(/\S+/g)||[]).length;
 
-  // HOUSE helper (calls your Cloudflare Worker)
-  // NOTE: worker should set CORS + call DeepSeek with its OWN secret key
-  const HOUSE = {
-    promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
-      const base = String(endpoint || "").replace(/\/+$/, "");
-      const url = base + "/prompt-check";
 
-      const headers = { "Content-Type": "application/json" };
-      if (passphrase) headers["X-OU-PASS"] = String(passphrase);
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model: String(model || "deepseek-chat"),
-          prompt: String(userPrompt || "")
-        })
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || `House error ${res.status}`);
-      if (!json.text) throw new Error("Empty response from House");
-      return String(json.text);
-    }
-  };
-
-  // footer bits (safe)
-  setText("year", new Date().getFullYear());
-  setHref("footerSupport", supportUrl);
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("footerSupport").href = supportUrl;
 
   const ROUTES = {
     home:{menu:"tpl-menu-home", content:"tpl-content-home"},
@@ -92,6 +59,7 @@
     aiguide:{menu:"tpl-menu-aiguide", content:"tpl-content-aiguide-overview"},
     about:{menu:"tpl-menu-about", content:"tpl-content-about"},
   };
+
 
   const isMobile = ()=> window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
 
@@ -111,6 +79,7 @@
   }
 
   function setAIGuideActive(sectionKey){
+    // highlight left menu buttons (desktop)
     document.querySelectorAll("[data-guide]").forEach(b=>{
       const k = b.dataset.guide;
       b.classList.toggle("is-active", k === sectionKey);
@@ -118,7 +87,7 @@
   }
 
   function renderAIGuideMobileNav(activeKey){
-    const host = $("aiguideMobile");
+    const host = document.getElementById("aiguideMobile");
     if(!host) return;
     if(!isMobile()){ host.innerHTML=""; return; }
     host.innerHTML = `
@@ -130,7 +99,7 @@
   }
 
   function openAIGuideSection(sectionKey){
-    const main = $("aiguide-main");
+    const main = document.getElementById("aiguide-main");
     if(!main) return;
     const sec = AIGUIDE_SECTIONS.find(s=>s.key===sectionKey) || AIGUIDE_SECTIONS[0];
     load(main, sec.tpl);
@@ -140,7 +109,6 @@
   }
 
   function load(tgt, id){
-    if(!tgt) return;
     const tpl = document.getElementById(id);
     tgt.innerHTML = "";
     if (tpl) tgt.appendChild(tpl.content.cloneNode(true));
@@ -160,11 +128,11 @@
 
   // HOME
   function initHome(){
-    const attract=$("homeAttract");
-    const active=$("homeActive");
-    const press=$("pressStart");
+    const attract=document.getElementById("homeAttract");
+    const active=document.getElementById("homeActive");
+    const press=document.getElementById("pressStart");
     if(!press) return;
-    const start=()=>{ if(attract) attract.hidden=true; if(active) active.hidden=false; pickFeatured(); };
+    const start=()=>{ attract.hidden=true; active.hidden=false; pickFeatured(); };
     press.onclick=start;
     press.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); start(); } };
   }
@@ -173,19 +141,19 @@
     if(!list.length) return;
     const pick=()=>list[Math.floor(Math.random()*list.length)];
     renderFeatured(pick());
-    const next=$("featuredNext");
+    const next=document.getElementById("featuredNext");
     if(next) next.onclick=()=>renderFeatured(pick());
   }
   function renderFeatured(p){
-    setText("featuredTitle", p.title);
-    setText("featuredDesc", p.tagline || p.desc || "");
-    setHref("featuredLaunch", p.url || "#");
+    document.getElementById("featuredTitle").textContent = p.title;
+    document.getElementById("featuredDesc").textContent = p.tagline || p.desc || "";
+    document.getElementById("featuredLaunch").href = p.url || "#";
   }
 
   // PROJECTS
   function initProjects(){
-    const listEl=$("projectsList");
-    const detail=$("projectDetail");
+    const listEl=document.getElementById("projectsList");
+    const detail=document.getElementById("projectDetail");
     if(!listEl||!detail) return;
     listEl.innerHTML="";
     (data.projects||[]).forEach((p,i)=>{
@@ -201,7 +169,6 @@
     btn.classList.add("is-active");
     detail.innerHTML = '<div class="card__body"></div>';
     const body=detail.querySelector(".card__body");
-    if(!body) return;
     body.innerHTML = `
       <h2 class="card__title">${escapeHtml(p.title||"")}</h2>
       <p class="card__desc">${escapeHtml(p.desc||p.tagline||"")}</p>
@@ -212,8 +179,8 @@
 
   // POSTS
   function initPosts(){
-    const listEl=$("postsList");
-    const detail=$("postDetail");
+    const listEl=document.getElementById("postsList");
+    const detail=document.getElementById("postDetail");
     if(!listEl||!detail) return;
     listEl.innerHTML="";
     (data.posts||[]).forEach((p,i)=>{
@@ -229,7 +196,6 @@
     btn.classList.add("is-active");
     detail.innerHTML = '<div class="card__body"></div>';
     const body=detail.querySelector(".card__body");
-    if(!body) return;
     body.innerHTML = `
       <h2 class="card__title">${escapeHtml(p.title||"")}</h2>
       <p class="card__desc">${escapeHtml(p.date||"")}</p>
@@ -241,7 +207,6 @@
     const sec = getAIGuideSection();
     openAIGuideSection(sec);
   }
-
   function openBuddy(){
     load(screenContent,"tpl-content-aiguide-buddy");
     if(isPremiumUnlocked()) initBuddy("a");
@@ -253,31 +218,29 @@
   }
 
   function showPremiumGate(){
-    const main=$("buddyMain");
-    if(!main) return;
+    const main=document.getElementById("buddyMain");
     load(main, "tpl-buddy-locked");
-    const buy=$("premiumBuy");
-    const have=$("premiumHave");
-    const wrap=$("premiumUnlock");
-    const pass=$("premiumPass");
-    const btn=$("premiumUnlockBtn");
-    const status=$("premiumStatus");
+    const buy=document.getElementById("premiumBuy");
+    const have=document.getElementById("premiumHave");
+    const wrap=document.getElementById("premiumUnlock");
+    const pass=document.getElementById("premiumPass");
+    const btn=document.getElementById("premiumUnlockBtn");
+    const status=document.getElementById("premiumStatus");
     if(buy) buy.href = premiumProductUrl;
-    if(have) have.onclick = ()=>{ if(wrap) wrap.hidden=false; pass?.focus(); };
+    if(have) have.onclick = ()=>{ wrap.hidden=false; pass?.focus(); };
     if(btn) btn.onclick = ()=>{
       const v=(pass?.value||"").trim();
-      if(!v){ if(status) status.textContent="Paste a passphrase to unlock."; return; }
+      if(!v){ status.textContent="Paste a passphrase to unlock."; return; }
       const ok = premiumPassphrases.some(p=>String(p).trim()===v);
-      if(!ok){ if(status) status.textContent="That passphrase doesn’t look right. Try again."; return; }
+      if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
       localStorage.setItem(LS.premiumUnlocked,"1");
       localStorage.setItem(LS.premiumPass, v);
-      if(status) status.textContent="✅ Premium enabled for this browser.";
+      status.textContent="✅ Premium enabled for this browser.";
       setTimeout(()=>initBuddy("a"), 450);
     };
   }
-
   function initBuddy(key){
-    const main=$("buddyMain");
+    const main=document.getElementById("buddyMain");
     const set=(k)=>{
       document.querySelectorAll(".buddy__mod").forEach(b=>b.classList.toggle("is-active", b.dataset.module===k));
       if(k==="a") load(main,"tpl-buddy-module-a");
@@ -293,7 +256,7 @@
     set(key||"a");
   }
 
-  // PROMPT CHECK (House only)
+  // PROMPT CHECK (DeepSeek)
   const PROMPT_CHECK_SYSTEM = [
     "You are an expert AI prompt reviewer and teacher.",
     "",
@@ -307,13 +270,32 @@
     "",
     "Follow this process exactly:",
     "1) Diagnose how an AI model would likely interpret the prompt.",
+    "   - Identify ambiguity, missing context, conflicting instructions, or hidden assumptions.",
+    "   - Be factual and concise.",
     "2) Identify what information is missing or under-specified.",
+    "   - Examples: goal, audience, format, constraints, success criteria.",
+    "   - Do not invent requirements. Only suggest what would improve clarity.",
     "3) Suggest concrete improvements.",
+    "   - Use actionable language (“Clarify X”, “Specify Y”).",
+    "   - Avoid abstract theory.",
     "4) Produce a revised “Golden Prompt”.",
+    "   - Preserve the user’s original intent.",
+    "   - Remove ambiguity.",
+    "   - Separate planning from execution if relevant.",
+    "   - Do NOT add new goals or features.",
     "",
     "Rules:",
     "- Do not execute the task described in the prompt.",
     "- Do not provide final answers to the task itself.",
+    "- Do not lecture.",
+    "- Do not over-explain.",
+    "- If the prompt is already strong, explicitly say so.",
+    "",
+    "Tone:",
+    "- Calm",
+    "- Neutral",
+    "- Teacher-like",
+    "- Respectful",
     "",
     "Output structure must be exactly:",
     "Diagnosis:",
@@ -332,26 +314,43 @@
   function initModuleD(){
     if(!isPremiumUnlocked()) { showPremiumGate(); return; }
 
-    const input=$("pcInput");
-    const run=$("pcRun");
-    const out=$("pcOut");
-    const err=$("pcError");
-    const status=$("pcStatus");
-    const usageEl=$("pcUsage");
-    const modelSel=$("pcModel");
-    const accessSel=$("pcAccess"); // may exist in template; we force-house
+    const input=document.getElementById("pcInput");
+    const run=document.getElementById("pcRun");
+    const out=document.getElementById("pcOut");
+    const err=document.getElementById("pcError");
+    const status=document.getElementById("pcStatus");
+    const accessSel=document.getElementById("pcAccess");
+    const usageEl=document.getElementById("pcUsage");
+    const modelSel=document.getElementById("pcModel");
 
-    // force-house UI if dropdown exists
+    // Access mode (BYO key vs House key)
+    const syncAccessUI = ()=>{
+      const mode = localStorage.getItem(LS.aiAccess) || "byo";
+      if(accessSel) accessSel.value = mode;
+      // keep About → Settings dropdown in sync if it exists
+      const aboutSel = document.getElementById("aiAccess");
+      if(aboutSel) aboutSel.value = mode;
+      return mode;
+    };
+    const updateUsageUI = ()=>{
+      const mode = syncAccessUI();
+      if(!usageEl) return null;
+      if(mode!=="house"){ usageEl.textContent=""; return null; }
+      const u = getHouseUsage();
+      usageEl.textContent = `Prompt Checks: ${u.count||0} / ${HOUSE_DAILY_LIMIT} today • Resets 00:00 Sofia`;
+      return Math.max(0, HOUSE_DAILY_LIMIT-(u.count||0));
+    };
+    updateUsageUI();
     if(accessSel){
-      // keep the label stable but remove BYOK behavior
-      const opts = Array.from(accessSel.options||[]);
-      // try to select "house" option if it exists, else leave as-is but disabled
-      const houseOpt = opts.find(o => String(o.value).toLowerCase().includes("house"));
-      if(houseOpt) accessSel.value = houseOpt.value;
-      accessSel.disabled = true;
-      accessSel.title = "House mode only (BYOK removed)";
+      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); updateUsageUI(); };
     }
 
+
+    const oneTime = (key, fn) => {
+      if(localStorage.getItem(key)==="1") return;
+      localStorage.setItem(key,"1");
+      fn();
+    };
     const flashStatus = (txt, ms=2600) => {
       if(!status) return;
       status.textContent = txt || "";
@@ -359,91 +358,88 @@
       setTimeout(()=>{ status.classList.remove("is-on"); status.textContent=""; }, ms);
     };
 
-    const updateUsageUI = ()=>{
-      if(!usageEl) return;
-      const u = getHouseUsage();
-      usageEl.textContent = `Prompt Checks: ${u.count||0} / ${HOUSE_DAILY_LIMIT} today • Resets 00:00 Sofia`;
-    };
-    updateUsageUI();
 
-    // one-time tips
-    const oneTime = (key, fn) => {
-      if(localStorage.getItem(key)==="1") return;
-      localStorage.setItem(key,"1");
-      fn();
-    };
     oneTime(LS.tipPcOpened, ()=>flashStatus("Prompt Check reviews your prompt — it does not run the task.", 3200));
-    safeOn(input, "focus", ()=>{
-      if(localStorage.getItem(LS.tipPcFocus)==="1") return;
-      localStorage.setItem(LS.tipPcFocus,"1");
-      flashStatus("Messy prompts are fine. This tool exists to clean them up.", 2800);
-    });
-    safeOn(run, "pointerenter", ()=>{
-      if(localStorage.getItem(LS.tipPcRun)==="1") return;
-      localStorage.setItem(LS.tipPcRun,"1");
-      flashStatus("This analyzes clarity, not results.", 2400);
-    });
+    if(input){
+      input.addEventListener("focus", ()=>{
+        if(localStorage.getItem(LS.tipPcFocus)==="1") return;
+        localStorage.setItem(LS.tipPcFocus,"1");
+        flashStatus("Messy prompts are fine. This tool exists to clean them up.", 2800);
+      }, { once:false });
+    }
+    if(run){
+      run.addEventListener("pointerenter", ()=>{
+        if(localStorage.getItem(LS.tipPcRun)==="1") return;
+        localStorage.setItem(LS.tipPcRun,"1");
+        flashStatus("This analyzes clarity, not results.", 2400);
+      }, { once:true });
+    }
 
-    if(run) run.onclick = async ()=>{
-      if(err) err.textContent="";
+    run.onclick = async ()=>{
+      err.textContent="";
       const prompt=(input?.value||"").trim();
-      if(!prompt){ if(err) err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
-
+      if(!prompt){ err.textContent="There’s nothing to review yet. Paste a prompt to begin."; return; }
+      const mode = (localStorage.getItem(LS.aiAccess)||"house");
       const wc = wordCount(prompt);
-      if(wc>HOUSE_MAX_WORDS){
-        if(err) err.textContent=`This prompt is too long (${wc} words). Max is ${HOUSE_MAX_WORDS} words.`;
-        return;
+      if(wc>HOUSE_MAX_WORDS){ err.textContent=`This prompt is too long (${wc} words). Max is ${HOUSE_MAX_WORDS} words.`; return; }
+      let apiKey = (localStorage.getItem("ou_ai_key")||"").trim();
+      if(mode==="byo"){
+        if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
+      }else{
+        const u=getHouseUsage();
+        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); updateUsageUI(); return; }
+        if(!HOUSE_ENDPOINT){ err.textContent="House key mode needs a backend proxy. Set house.endpoint in assets/data.js."; return; }
+        const pass=(localStorage.getItem(LS.premiumPass)||"").trim();
+        if(!pass){ err.textContent="Missing passphrase in this browser. Re-enter Premium passphrase."; return; }
       }
-
-      const u=getHouseUsage();
-      if((u.count||0) >= HOUSE_DAILY_LIMIT){
-        if(err) err.textContent="Daily limit reached. This resets at 00:00 Sofia.";
-        flashStatus("Daily limit reached — come back tomorrow.", 2600);
-        updateUsageUI();
-        return;
-      }
-
-      if(!HOUSE_ENDPOINT){
-        if(err) err.textContent="House backend is not configured. Set house.endpoint in assets/data.js.";
-        return;
-      }
-
-      const pass=(localStorage.getItem(LS.premiumPass)||"").trim();
-      // If you want NO passphrase, remove this check and header usage in HOUSE.promptCheck above
-      if(!pass){
-        if(err) err.textContent="Missing passphrase in this browser. Re-enter Premium passphrase.";
-        return;
-      }
-
-      if(out){
-        out.innerHTML = '<div class="pc__empty">Reviewing your prompt…<div class="pc__sub">Thinking like an AI — not executing like one.</div></div>';
-      }
+      out.innerHTML = '<div class="pc__empty">Reviewing your prompt…<div class="pc__sub">Thinking like an AI — not executing like one.</div></div>';
       flashStatus("Reviewing your prompt…", 1800);
-
       try{
         const model = (modelSel?.value||"deepseek-chat").trim();
-        const text = await HOUSE.promptCheck({
-          endpoint: HOUSE_ENDPOINT,
-          passphrase: pass,
-          model,
-          userPrompt: prompt
-        });
-
+        let text="";
+        // House-only (no BYOK)
+        const pass = (premiumPassphrases[0] || "").trim();
+        if(!HOUSE_ENDPOINT) throw new Error("HOUSE is not defined");
+        text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
         incHouseUsage();
         updateUsageUI();
-
         const parsed = parsePromptCheck(text);
         renderPromptCheck(out, parsed, text);
         flashStatus("Prompt reviewed.", 2200);
       }catch(ex){
-        if(out){
-          out.innerHTML = '<div class="pc__empty">Couldn’t reach the model just now.<div class="pc__sub">Try again in a moment.</div></div>';
-        }
-        if(err){
-          err.textContent = ex && ex.message ? ex.message : "Couldn’t reach the model just now. Try again in a moment.";
-        }
+        out.innerHTML = '<div class="pc__empty">Couldn’t reach the model just now.<div class="pc__sub">Try again in a moment.</div></div>';
+        err.textContent = ex && ex.message ? ex.message : "Couldn’t reach the model just now. Try again in a moment.";
       }
     };
+  }
+
+  async function deepSeekPromptCheck({ apiKey, model, userPrompt }){
+    const url = "https://api.deepseek.com/chat/completions";
+    const payload = {
+      model: model || "deepseek-chat",
+      messages: [
+        { role: "system", content: PROMPT_CHECK_SYSTEM },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.2,
+      max_tokens: 900
+    };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok){
+      const t = await res.text().catch(()=>"");
+      throw new Error(`DeepSeek error ${res.status}: ${t}`);
+    }
+    const json = await res.json();
+    const content = json?.choices?.[0]?.message?.content;
+    if(!content) throw new Error("Empty response");
+    return String(content);
   }
 
   function parsePromptCheck(text){
@@ -461,27 +457,24 @@
 
   function toBullets(block){
     const lines = String(block||"").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    return lines.map(l=>l.replace(/^[-•\*]\s*/, "")).filter(Boolean);
+    const items = lines.map(l=>l.replace(/^[-•\*]\s*/, "")).filter(Boolean);
+    return items;
   }
 
   function renderPromptCheck(container, parsed, raw){
-    if(!container) return;
-
     const diag = toBullets(parsed.diagnosis);
     const miss = toBullets(parsed.missing);
     const impr = toBullets(parsed.improvements);
     const golden = (parsed.golden||"").trim();
 
+    // Fallback: if parsing fails, show raw.
     const ok = (diag.length || miss.length || impr.length || golden);
     if(!ok){
       container.innerHTML = `<div class="pc__section"><div class="pc__h">Result</div><pre class="pc__pre">${escapeHtml(raw)}</pre></div>`;
       return;
     }
 
-    const mkList = (items)=> items.length
-      ? `<ul class="pc__list">${items.map(i=>`<li>${escapeHtml(i)}</li>`).join("")}</ul>`
-      : `<div class="pc__muted">Nothing critical missing.</div>`;
-
+    const mkList = (items)=> items.length ? `<ul class="pc__list">${items.map(i=>`<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<div class="pc__muted">Nothing critical missing.</div>`;
     container.innerHTML = `
       <section class="pc__section">
         <div class="pc__h">Diagnosis</div>
@@ -506,37 +499,31 @@
       </section>
     `;
 
-    const copyBtn = $("pcCopyGolden");
-    safeOn(copyBtn, "click", async()=>{
-      const txt = $("pcGolden")?.textContent || "";
+    const copyBtn = document.getElementById("pcCopyGolden");
+    copyBtn?.addEventListener("click", async()=>{
+      const txt = document.getElementById("pcGolden")?.textContent || "";
       await navigator.clipboard.writeText(txt);
       copyBtn.textContent = "Copied.";
       setTimeout(()=>copyBtn.textContent="Copy", 1100);
       if(localStorage.getItem(LS.tipPcGolden)!=="1"){
         localStorage.setItem(LS.tipPcGolden,"1");
-        const st=$("pcStatus");
+        const st=document.getElementById("pcStatus");
         if(st){ st.textContent="Use this as-is, or adapt it to your style."; setTimeout(()=>st.textContent="", 2400); }
       }
     });
   }
 
-  // Buddy Module A/B/C are unchanged from your file
   function initModuleA(){
-    const out=$("aOutput");
-    const gen=$("aGenerate");
-    const copy=$("aCopy");
-    const reset=$("aReset");
-    if(!out || !gen) return;
-
-    gen.onclick=()=>{
-      const role=($("aRole")?.value||"").trim();
-      const goal=($("aGoal")?.value||"").trim();
+    const out=document.getElementById("aOutput");
+    document.getElementById("aGenerate").onclick=()=>{
+      const role=(document.getElementById("aRole").value||"").trim();
+      const goal=(document.getElementById("aGoal").value||"").trim();
       const wants=[];
-      if($("aWStructure")?.checked) wants.push("clear structure");
-      if($("aWSteps")?.checked) wants.push("step-by-step");
-      if($("aWShort")?.checked) wants.push("short & direct");
-      if($("aWExamples")?.checked) wants.push("examples");
-      if($("aWWarnings")?.checked) wants.push("warnings / missing constraints");
+      if(document.getElementById("aWStructure").checked) wants.push("clear structure");
+      if(document.getElementById("aWSteps").checked) wants.push("step-by-step");
+      if(document.getElementById("aWShort").checked) wants.push("short & direct");
+      if(document.getElementById("aWExamples").checked) wants.push("examples");
+      if(document.getElementById("aWWarnings").checked) wants.push("warnings / missing constraints");
       const tone=document.querySelector('input[name="aTone"]:checked')?.value||"direct";
       out.value=[
         "Intro / Working Agreement Context:",
@@ -551,10 +538,9 @@
         "- Don’t dump huge code blocks unless I ask; otherwise give patches / files."
       ].join("\n");
     };
-    if(copy) copy.onclick=async()=>navigator.clipboard.writeText(out.value||"");
-    if(reset) reset.onclick=()=>{
-      if($("aRole")) $("aRole").value="";
-      if($("aGoal")) $("aGoal").value="";
+    document.getElementById("aCopy").onclick=async()=>navigator.clipboard.writeText(out.value||"");
+    document.getElementById("aReset").onclick=()=>{
+      document.getElementById("aRole").value=""; document.getElementById("aGoal").value="";
       document.querySelectorAll('#buddyMain input[type="checkbox"]').forEach(c=>c.checked=false);
       out.value="(Generated prompt will appear here)";
     };
@@ -565,17 +551,12 @@
     if(mode==="strict") return "Golden Way (Strict):\n- Refuse final outputs if key decisions are missing\n- List what must be clarified\n- One change at a time\n- Keep a working 'golden' version\n- Only execute when I say: DEPLOY";
     return "Golden Way (Standard):\n- Lock decisions first\n- One change at a time\n- Keep a stable 'golden' version\n- No big code dumps unless asked; prefer zip/patch\n- Only execute when I say: DEPLOY";
   }
-
   function initModuleB(){
-    const out=$("bOutput");
-    const gen=$("bGenerate");
-    const copy=$("bCopy");
-    const ex=$("bExample");
+    const out=document.getElementById("bOutput");
     const mode=()=>document.querySelector('input[name="bMode"]:checked')?.value||"standard";
-    if(!out || !gen) return;
-    gen.onclick=()=>{ out.value=goldenRules(mode()); };
-    if(copy) copy.onclick=async()=>navigator.clipboard.writeText(out.value||"");
-    if(ex) ex.onclick=()=>{
+    document.getElementById("bGenerate").onclick=()=>{ out.value=goldenRules(mode()); };
+    document.getElementById("bCopy").onclick=async()=>navigator.clipboard.writeText(out.value||"");
+    document.getElementById("bExample").onclick=()=>{
       out.value=[goldenRules(mode()),"", "Example usage:",
       "User: Let's align on layout first (no code).",
       "AI: Great. 1) Menu placement? 2) Theme names? 3) Mobile behavior?",
@@ -583,7 +564,6 @@
       "AI: (Now provides the zip / patch.)"].join("\n");
     };
   }
-
   function initModuleC(){
     const EX={
       planapp:{bad:"I have an idea for an app. Can you help me build it?",
@@ -599,22 +579,20 @@
         golden:"I will paste my idea.\nYour job:\n1) identify the 3 biggest risks\n2) propose 2 simpler versions\n3) suggest a first experiment that costs €0\nKeep it direct. No fluff.",
         why:"You get diagnosis, options, and action — not endless theory."}
     };
-    const sel=$("cExampleSelect");
-    if(!sel) return;
+    const sel=document.getElementById("cExampleSelect");
     const render=(k)=>{const e=EX[k]||EX.planapp;
-      setText("cBad", e.bad);
-      setText("cImproved", e.improved);
-      setText("cGolden", e.golden);
-      setText("cWhy", e.why);
+      document.getElementById("cBad").textContent=e.bad;
+      document.getElementById("cImproved").textContent=e.improved;
+      document.getElementById("cGolden").textContent=e.golden;
+      document.getElementById("cWhy").textContent=e.why;
     };
-    sel.onchange=()=>render(sel.value);
-    render(sel.value);
+    sel.onchange=()=>render(sel.value); render(sel.value);
   }
 
-  // ABOUT (Theme logic stays, BYOK UI gets hidden if present)
+  // ABOUT
   function initAbout(){
-    setText("aboutText", data.aboutText || "");
-    setHref("aboutSupport", supportUrl);
+    document.getElementById("aboutText").textContent = data.aboutText || "";
+    document.getElementById("aboutSupport").href = supportUrl;
 
     const saved = localStorage.getItem("ou_theme") || "retro";
     document.body.dataset.theme = saved;
@@ -623,22 +601,17 @@
       r.onchange=()=>{ if(!r.checked) return; document.body.dataset.theme=r.value; localStorage.setItem("ou_theme", r.value); };
     });
 
-    // Hide/remove BYOK UI if it exists in template
-    const idsToHide = ["aiProvider","aiAccess","apiKey","testKey","clearKey"];
-    idsToHide.forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      // hide the whole "row" if possible, else hide element
-      const wrap = el.closest(".field") || el.closest(".row") || el.parentElement;
-      if(wrap) wrap.style.display = "none";
-      else el.style.display = "none";
-    });
-
-    // Optionally show a short note somewhere if you have a placeholder
-    const status = $("settingsStatus");
-    if(status){
-      status.textContent = "AI key input was removed. Prompt Check uses the built-in House proxy.";
-    }
+    const provider=document.getElementById("aiProvider");
+    const access=document.getElementById("aiAccess");
+    const key=document.getElementById("apiKey");
+    const status=document.getElementById("settingsStatus");
+    provider.value = localStorage.getItem("ou_ai_provider") || "openai";
+    access.value = localStorage.getItem(LS.aiAccess) || "byo";
+    key.value = localStorage.getItem("ou_ai_key") || "";
+    provider.onchange=()=>{ localStorage.setItem("ou_ai_provider", provider.value); status.textContent=""; };
+    key.oninput=()=>{ localStorage.setItem("ou_ai_key", key.value); status.textContent=""; };
+    document.getElementById("clearKey").onclick=()=>{ localStorage.removeItem("ou_ai_key"); key.value=""; status.textContent="Key cleared (local only)."; };
+    document.getElementById("testKey").onclick=()=>{ status.textContent = key.value.trim()? "Key saved locally. (API test will be added later.)" : "Paste a key first."; };
   }
 
   // global click handler
