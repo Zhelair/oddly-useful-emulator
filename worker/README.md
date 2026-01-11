@@ -1,21 +1,42 @@
-# Oddly Useful — House Proxy Worker (fixed)
+# House Key Proxy (Cloudflare Worker) — Prompt Check v1
 
-This version:
-- always returns CORS headers (even on errors)
-- enforces Premium passphrase via `ALLOWED_PASSPHRASES`
-- rate limits **per passphrase** (15/day by default) via Durable Object `RATE_LIMITER`
+This tiny backend keeps your **DeepSeek API key secret** and enforces:
+- **15 Prompt Checks / day** (per passphrase)
+- **2000 words max** per prompt
+- Reset at **00:00 Europe/Sofia**
 
-## Required secrets / vars (Cloudflare Dashboard or Wrangler)
-- `DEEPSEEK_API_KEY` (secret)
-- `ALLOWED_PASSPHRASES` (secret) — one per line (or comma-separated)
-- optional: `DAILY_LIMIT` (var) — default 15
-
-## Deploy (wrangler)
+## Deploy (free tier)
+1) Install Wrangler + login
 ```bash
 npm i -g wrangler
 wrangler login
+```
+
+2) From this folder:
+```bash
 wrangler deploy
 ```
 
-After deploy, your app should call:
-`https://oddly-useful-house-proxy.<your-subdomain>.workers.dev/prompt-check`
+3) Set secrets (required)
+```bash
+wrangler secret put DEEPSEEK_API_KEY
+wrangler secret put ALLOWED_PASSPHRASES
+```
+For `ALLOWED_PASSPHRASES`, use comma-separated values (example):
+`ODDLY-USEFUL-2026`
+
+Optional overrides:
+```bash
+wrangler secret put DAILY_LIMIT
+wrangler secret put MAX_WORDS
+```
+
+4) Copy your Worker URL into the site
+Edit `assets/data.js`:
+```js
+house: { endpoint: "https://YOUR-WORKER.yourname.workers.dev", ... }
+```
+
+## Notes
+- Limits are enforced server-side using a Durable Object.
+- This is MVP-grade (simple + safe).

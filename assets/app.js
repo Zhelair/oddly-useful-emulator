@@ -235,7 +235,8 @@
   }
   function openBuddy(){
     load(screenContent,"tpl-content-aiguide-buddy");
-    if(isPremiumUnlocked()) initBuddy("a");
+    // Default to Prompt Check so people instantly see the "wow" feature.
+    if(isPremiumUnlocked()) initBuddy("d");
     else showPremiumGate();
   }
 
@@ -257,12 +258,16 @@
     if(btn) btn.onclick = ()=>{
       const v=(pass?.value||"").trim();
       if(!v){ status.textContent="Paste a passphrase to unlock."; return; }
-      const ok = premiumPassphrases.some(p=>String(p).trim()===v);
-      if(!ok){ status.textContent="That passphrase doesn’t look right. Try again."; return; }
+      // Keep the gate lightweight: let the backend be the source of truth.
+      // (This also avoids breakage when you rotate passphrases server-side.)
+      const ok = premiumPassphrases.length ? premiumPassphrases.some(p=>String(p).trim()===v) : true;
+      if(!ok){
+        status.textContent="Saved. If it’s wrong, Prompt Check will ask you to re-enter.";
+      }
       localStorage.setItem(LS.premiumUnlocked,"1");
       localStorage.setItem(LS.premiumPass, v);
       status.textContent="✅ Premium enabled for this browser.";
-      setTimeout(()=>initBuddy("a"), 450);
+      setTimeout(()=>initBuddy("d"), 450);
     };
   }
   function initBuddy(key){
@@ -279,7 +284,7 @@
       if(k==="d") initModuleD();
     };
     document.querySelectorAll(".buddy__mod").forEach(b=>b.onclick=()=>set(b.dataset.module));
-    set(key||"a");
+    set(key||"d");
   }
 
   // PROMPT CHECK (DeepSeek)
