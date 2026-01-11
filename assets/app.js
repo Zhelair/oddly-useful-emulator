@@ -31,33 +31,31 @@ document.addEventListener("DOMContentLoaded", () => {
     resultBox.textContent = "Thinking…";
 
     try {
-      const res = await fetch(API_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${LOCKED_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            { role: "system", content: "You are a helpful assistant that reviews prompts for clarity." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.3
-        })
-      });
+      const res = await fetch(fetch("https://api.deepseek.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY_HERE"
+  },
+  body: JSON.stringify({
+    model: "deepseek-chat",
+    messages: [
+      { role: "user", content: promptText }
+    ],
+    temperature: 0.7
+  })
+})
+.then(res => res.json())
+.then(data => {
+  console.log("DeepSeek response:", data);
 
-      if (!res.ok) {
-        throw new Error("API error: " + res.status);
-      }
+  const text =
+    data?.choices?.[0]?.message?.content ||
+    "No response from model.";
 
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "No response.";
-      resultBox.textContent = text;
-
-    } catch (err) {
-      console.error(err);
-      resultBox.textContent = "Could not reach the model. Try again later.";
-    }
-  });
+  resultsEl.textContent = text;
+})
+.catch(err => {
+  console.error(err);
+  resultsEl.textContent = "Error contacting AI.";
 });
