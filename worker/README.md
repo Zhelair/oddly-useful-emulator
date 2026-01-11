@@ -1,3 +1,5 @@
+(DEV PATCH) Daily limit disabled; passphrase required for included access.
+
 # House Key Proxy (Cloudflare Worker) — Prompt Check v1
 
 This tiny backend keeps your **DeepSeek API key secret** and enforces:

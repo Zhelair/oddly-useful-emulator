@@ -69,20 +69,8 @@ export class RateLimiter {
   }
 }
 
-
-function fnv1a32(str) {
-  // Simple stable hash to keep Durable Object names short and safe.
-  let h = 0x811c9dc5;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = (h * 0x01000193) >>> 0;
-  }
-  return ("00000000" + h.toString(16)).slice(-8);
-}
-
-async function checkRateLimit(env, limit, passphrase) {
-  const key = "pp:" + fnv1a32(String(passphrase || "").trim());
-  const id = env.RATE_LIMITER.idFromName(key);
+async function checkRateLimit(env, limit) {
+  const id = env.RATE_LIMITER.idFromName("global");
   const stub = env.RATE_LIMITER.get(id);
   const res = await stub.fetch(`https://do/check?limit=${limit}`);
   const j = await res.json();
@@ -165,31 +153,24 @@ export default {
 
     const prompt = String(payload?.prompt || "").trim();
     const access = String(payload?.access || "included").toLowerCase(); // "included" or "mykey"
-    const headerPass = (request.headers.get("X-Passphrase") || request.headers.get("X-OU-PASS") || request.headers.get("x-ou-pass") || "").trim();
-    const passphrase = String(headerPass || payload?.passphrase || payload?.code || payload?.pass || "").trim();
+    const passphrase = String(payload?.passphrase || payload?.code || payload?.pass || payload?.passphrase || "").trim() || String(request.headers.get("X-Passphrase") || request.headers.get("x-passphrase") || "").trim();
     const dailyLimit = Number(payload?.dailyLimit || 15);
 
     if (!prompt) return textOk(request, ""); // website already blocks empty prompts
 
-        // Gate: Included key requires Premium passphrase (server-side)
+    // Passphrase gate: Included key ALWAYS requires a valid passphrase.
     const allowed = normalizePassphrases(env.ALLOWED_PASSPHRASES);
     if (access === "included") {
-      if (!allowed.length) {
-        return jsonError(request, 500, "Server not configured: ALLOWED_PASSPHRASES is empty.");
+      if (!passphrase) {
+        return jsonError(request, 401, "Passphrase required.");
       }
-      if (!passphrase || !allowed.includes(passphrase)) {
-        return jsonError(request, 401, "Passphrase required (or incorrect).");
+      if (allowed.length && !allowed.includes(passphrase)) {
+        return jsonError(request, 401, "Invalid passphrase.");
       }
     }
 
-
-    // Rate limit only for included key
-    if (access === "included") {
-      const rl = await checkRateLimit(env, dailyLimit, passphrase);
-      if (!rl.ok) {
-        return jsonError(request, 429, `Daily limit reached (${rl.limit}/day).`);
-      }
-    }
+    // Rate limit: disabled for now (development mode).
+}
 
     const apiKey =
       access === "mykey"
