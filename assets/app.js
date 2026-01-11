@@ -32,32 +32,18 @@
       return new Date().toISOString().slice(0,10);
     }
   };
-  const getHouseUsage = (passphrase)=>{
+  const getHouseUsage = ()=>{
     const dk = sofiaDateKey();
     let obj = null;
     try{ obj = JSON.parse(localStorage.getItem(LS.houseUsage)||"null"); }catch(e){ obj=null; }
-
-    // Back-compat: old format {date,count}
-    if(obj && typeof obj.count === "number" && !obj.byPass){
-      obj = { date: obj.date || dk, byPass: { "__global__": obj.count } };
-      localStorage.setItem(LS.houseUsage, JSON.stringify(obj));
-    }
-
-    if(!obj || obj.date!==dk || !obj.byPass){
-      obj = { date: dk, byPass: {} };
-      localStorage.setItem(LS.houseUsage, JSON.stringify(obj));
-    }
-
-    const key = String((passphrase||"").trim() || "__none__");
-    const count = Number(obj.byPass[key]||0);
-    return { date: dk, key, count, _raw: obj };
+    if(!obj || obj.date!==dk){ obj = {date: dk, count: 0}; localStorage.setItem(LS.houseUsage, JSON.stringify(obj)); }
+    return obj;
   };
-  const incHouseUsage = (passphrase)=>{
-    const u = getHouseUsage(passphrase);
-    const obj = u._raw || { date: u.date, byPass: {} };
-    obj.byPass[u.key] = (Number(obj.byPass[u.key]||0) + 1);
-    localStorage.setItem(LS.houseUsage, JSON.stringify(obj));
-    return { date: u.date, key: u.key, count: Number(obj.byPass[u.key]||0), _raw: obj };
+  const incHouseUsage = ()=>{
+    const u = getHouseUsage();
+    u.count = (u.count||0) + 1;
+    localStorage.setItem(LS.houseUsage, JSON.stringify(u));
+    return u;
   };
   const wordCount = (s)=> (String(s||"").trim().match(/\S+/g)||[]).length;
 
@@ -293,7 +279,7 @@
       if(k==="d") initModuleD();
     };
     document.querySelectorAll(".buddy__mod").forEach(b=>b.onclick=()=>set(b.dataset.module));
-    set(key||"d");
+    set(key||"a");
   }
 
   // PROMPT CHECK (DeepSeek)
@@ -362,8 +348,6 @@
     const accessSel=document.getElementById("pcAccess");
     const usageEl=document.getElementById("pcUsage");
     const modelSel=document.getElementById("pcModel");
-    const resetPassBtn=document.getElementById("pcResetPass");
-    const chips=[...document.querySelectorAll(".pcChip")];
 
     // Access mode (BYO key vs House key)
     const syncAccessUI = ()=>{
@@ -377,40 +361,24 @@
     const updateUsageUI = ()=>{
       const mode = syncAccessUI();
       if(!usageEl) return null;
-      if(mode!=="house"){ if(usageEl) usageEl.textContent=""; if(resetPassBtn) resetPassBtn.style.display="none"; return null; }
-      const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
-      const u = getHouseUsage(pass);
+      if(mode!=="house"){ usageEl.textContent=""; return null; }
+      const u = getHouseUsage();
       usageEl.textContent = `Prompt Checks: ${u.count||0} / ${HOUSE_DAILY_LIMIT} today • Resets 00:00 Sofia`;
-      if(resetPassBtn) resetPassBtn.
-    // Example chips (tap to fill)
-    chips.forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const sample = btn.getAttribute("data-sample") || "";
-        if(input) input.value = sample;
-        input?.focus();
-        flashStatus("Sample loaded — tweak it to your needs.", 1600);
-      });
-    });
-
-    // Reset / switch passphrase (useful when you hit daily limit)
-    if(resetPassBtn){
-      resetPassBtn.addEventListener("click", ()=>{
-        // Clear stored premium passphrase (and local usage UI state)
-        localStorage.removeItem(LS.premiumPass);
-        // Optional: don't lock the whole app; just ask for the passphrase again where needed
-        flashStatus("Passphrase cleared. Enter a different Premium code.", 2600);
-        // If a premium gate is active, reopen it
-        try{ showPremiumGate(); }catch(e){}
-      });
-    }
-
-
-style.display="";
       return Math.max(0, HOUSE_DAILY_LIMIT-(u.count||0));
     };
-    updateUsageUI();
+    // Safety wrapper: never let a usage badge crash the whole Prompting Buddy page.
+    // (Useful if a cached/older DOM template is missing expected elements.)
+    const safeUpdateUsageUI = ()=>{
+      try{ return updateUsageUI(); }
+      catch(e){
+        console.warn("updateUsageUI failed", e);
+        if(usageEl) usageEl.textContent = "";
+        return null;
+      }
+    };
+    safeUpdateUsageUI();
     if(accessSel){
-      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); updateUsageUI(); };
+      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); safeUpdateUsageUI(); };
     }
 
 
@@ -454,9 +422,8 @@ style.display="";
       if(mode==="byo"){
         if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
       }else{
-        const passNow=(localStorage.getItem(LS.premiumPass)||"").trim();
-        const u=getHouseUsage(passNow);
-        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); updateUsageUI(); return; }
+        const u=getHouseUsage();
+        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); safeUpdateUsageUI(); return; }
         if(!HOUSE_ENDPOINT){ err.textContent="House key mode needs a backend proxy. Set house.endpoint in assets/data.js."; return; }
         const pass=(localStorage.getItem(LS.premiumPass)||"").trim();
         if(!pass){ err.textContent="Missing passphrase in this browser. Re-enter Premium passphrase."; return; }
@@ -471,8 +438,8 @@ style.display="";
         }else{
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
           text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
-          incHouseUsage(passNow);
-          updateUsageUI();
+          incHouseUsage();
+          safeUpdateUsageUI();
         }
         const parsed = parsePromptCheck(text);
         renderPromptCheck(out, parsed, text);
