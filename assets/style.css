@@ -178,23 +178,3 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
 .settings__note{font-size:12px;opacity:.82;margin-top:8px;line-height:1.35;}
 
 .output--input{width:100%;min-height:220px;resize:vertical;overflow:auto;-webkit-overflow-scrolling:touch}
-
-/* Sprint 2 — Buddy mobile readability (no hiding; reduce scroll by density) */
-@media (max-width: 720px){
-  .pc{gap:10px}
-  .pc__section{padding:10px;border-radius:14px}
-  .pc__h{margin-bottom:4px}
-  .pc__sub{margin-top:4px;font-size:12px;line-height:1.25}
-  .pc__list{gap:4px;padding-left:16px}
-  .pc__list li{margin:0}
-  .pc__muted{font-size:12px}
-  .pc__pre{font-size:12px;line-height:1.35;padding:8px;border-radius:10px}
-  .pc__actions{margin-top:8px}
-  /* Golden Way = hero (warm “aha”): clearer frame, same content */
-  .pc__section--gold{
-    border-color:rgba(255,138,61,.38);
-    background:rgba(255,138,61,.09);
-    box-shadow: inset 0 2px 0 rgba(255,138,61,.22);
-  }
-  .pc__section--gold .btn--primary{width:100%;text-align:center}
-}
