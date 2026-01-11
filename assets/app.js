@@ -49,41 +49,31 @@
 
   // HOUSE helper (calls your Cloudflare Worker)
   const HOUSE = {
-    promptCheck: async ({ endpoint, passphrase, model, userPrompt }) => {
-      const base = String(endpoint || "").replace(/\/\/+$/, ""); // remove trailing /
+    promptCheck: async ({ endpoint, passphrase, model, userPrompt, system, dailyLimit }) => {
+      const base = String(endpoint || "").replace(/\/+$/, ""); // remove trailing /
       const url = base + "/prompt-check";
 
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Match the Worker’s expected header + CORS allowlist:
+          // Keep header (harder to accidentally log in some tooling), but also include in body for clarity.
           "X-Passphrase": String(passphrase || "")
         },
         body: JSON.stringify({
+          access: "included",
+          dailyLimit: Number(dailyLimit || 15),
           model: String(model || "deepseek-chat"),
           prompt: String(userPrompt || ""),
-          // Also send in body as a robust fallback (headers can be finicky):
-          passphrase: String(passphrase || "")
+          passphrase: String(passphrase || ""),
+          system: String(system || "")
         })
       });
 
-      // Worker returns JSON on errors (e.g., { ok:false, error:"..." })
-      if (!res.ok) {
-        let msg = "";
-        try {
-          const j = await res.json();
-          msg = j && (j.error || j.message) ? String(j.error || j.message) : "";
-        } catch (e) {
-          msg = await res.text().catch(() => "");
-        }
-        throw new Error(msg || `House error ${res.status}`);
-      }
-
-      // Worker returns plain text on success (content-type: text/plain)
-      const text = await res.text().catch(() => "");
-      if (!text || !String(text).trim()) throw new Error("Empty response from House");
-      return String(text);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `House error ${res.status}`);
+      if (!json.text) throw new Error("Empty response from House");
+      return String(json.text);
     }
   };
 
@@ -439,7 +429,7 @@
           text = await deepSeekPromptCheck({ apiKey, model, userPrompt: prompt });
         }else{
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
-          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
+          text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt, system: PROMPT_CHECK_SYSTEM, dailyLimit: HOUSE_DAILY_LIMIT });
           incHouseUsage();
           updateUsageUI();
         }
