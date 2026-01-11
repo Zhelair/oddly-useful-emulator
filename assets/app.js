@@ -55,19 +55,6 @@
     setText("topAiguide", U.top_aiguide);
     setText("topAbout", U.top_about);
 
-    
-    // AI Guide menu (labels)
-    setText("menuAIGuideTitle", U.aiguide_menu_title);
-    setText("menuAIGuideHint", U.aiguide_pick);
-    setText("menuGuideBuddy", U.guide_buddy);
-    setText("menuGuideStart", U.guide_start);
-    setText("menuGuideHygiene", U.guide_hygiene);
-    setText("menuGuideGolden", U.guide_golden);
-    setText("menuGuideSouth", U.guide_south);
-    setText("menuGuidePatterns", U.guide_patterns);
-    setText("menuGuidePlaybooks", U.guide_playbooks);
-    setText("menuGuideExamples", U.guide_examples);
-
     // Home
     setText("pressStart", U.press_start);
     setText("homeSubhead", U.home_subhead);
@@ -189,7 +176,6 @@
 
   function renderAIGuideMobileNav(activeKey){
     const host = document.getElementById("aiguideMobile");
-    const U = ui();
     if(!host) return;
     if(!isMobile()){ host.innerHTML=""; return; }
     host.innerHTML = `
@@ -204,11 +190,7 @@
     const main = document.getElementById("aiguide-main");
     if(!main) return;
     const sec = AIGUIDE_SECTIONS.find(s=>s.key===sectionKey) || AIGUIDE_SECTIONS[0];
-    const lang=getLang();
-    const baseTpl=sec.tpl;
-    const ruTpl=baseTpl + "-ru";
-    const tplId = (lang==="ru" && document.getElementById(ruTpl)) ? ruTpl : baseTpl;
-    load(main, tplId);
+    load(main, sec.tpl);
     localStorage.setItem(LS.aiguideSection, sec.key);
     setAIGuideActive(sec.key);
     renderAIGuideMobileNav(sec.key);

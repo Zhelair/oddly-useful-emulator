@@ -140,36 +140,6 @@ window.OU_DATA = {
       "test_key": "Проверить ключ",
       "clear_key": "Очистить",
       "house_note": "Ключ "
-    ,
-      "top_home": "Главная"
-    ,
-      "top_projects": "Проекты"
-    ,
-      "top_posts": "Заметки"
-    ,
-      "top_aiguide": "AI-гид"
-    ,
-      "top_about": "О проекте"
-    ,
-      "aiguide_menu_title": "AI-ГИД"
-    ,
-      "aiguide_pick": "Выберите раздел"
-    ,
-      "guide_buddy": "Помощник по промптам"
-    ,
-      "guide_start": "Начните отсюда"
-    ,
-      "guide_hygiene": "Гигиена"
-    ,
-      "guide_golden": "Золотые правила"
-    ,
-      "guide_south": "Когда всё пошло не так"
-    ,
-      "guide_patterns": "Паттерны"
-    ,
-      "guide_playbooks": "Плейбуки"
-    ,
-      "guide_examples": "Примеры"
     },
     "aboutText": "Я создаю небольшие и продуманные программные проекты, предназначенные для использования — а не для оптимизации или эксплуатации.
 

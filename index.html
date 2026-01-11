@@ -138,7 +138,7 @@
 
 <template id="tpl-menu-aiguide">
   <div class="menu">
-    <div class="menu__title" id="menuAIGuideTitle">AI GUIDE</div>
+    <div class="menu__title">AI GUIDE</div>
     <div class="menu__group">
       <button class="menu__item menu__item--mini" data-route="home" type="button">Home</button>
       <button class="menu__item menu__item--mini" data-route="projects" type="button">Projects</button>
@@ -148,18 +148,18 @@
     </div>
     <div class="menu__sep"></div>
 
-    <button class="menu__item" data-guide="buddy" type="button" id="menuGuideBuddy">Prompting Buddy</button>
+    <button class="menu__item" data-guide="buddy" type="button">Prompting Buddy</button>
 
     <div class="menu__sep"></div>
-    <button class="menu__item" data-guide="start" type="button" id="menuGuideStart">Start Here</button>
-    <button class="menu__item" data-guide="hygiene" type="button" id="menuGuideHygiene">Hygiene</button>
-    <button class="menu__item" data-guide="golden" type="button" id="menuGuideGolden">Golden Rules</button>
-    <button class="menu__item" data-guide="south" type="button" id="menuGuideSouth">When it goes South</button>
-    <button class="menu__item" data-guide="patterns" type="button" id="menuGuidePatterns">Patterns</button>
-    <button class="menu__item" data-guide="playbooks" type="button" id="menuGuidePlaybooks">Playbooks</button>
-    <button class="menu__item" data-guide="examples" type="button" id="menuGuideExamples">Examples</button>
+    <button class="menu__item" data-guide="start" type="button">Start Here</button>
+    <button class="menu__item" data-guide="hygiene" type="button">Hygiene</button>
+    <button class="menu__item" data-guide="golden" type="button">Golden Rules</button>
+    <button class="menu__item" data-guide="south" type="button">When it goes South</button>
+    <button class="menu__item" data-guide="patterns" type="button">Patterns</button>
+    <button class="menu__item" data-guide="playbooks" type="button">Playbooks</button>
+    <button class="menu__item" data-guide="examples" type="button">Examples</button>
 
-    <div class="menu__hint" id="menuAIGuideHint">Pick a section</div>
+    <div class="menu__hint">Pick a section</div>
   </div>
 </template>
 
@@ -630,118 +630,6 @@ Export settings</pre>
     <p class="muted">More examples coming: “write a book”, “edit a script”, “write an essay”, “fix this UI”, “make a pitch deck”.</p>
   </div>
 </template>
-
-<!-- RU AI Guide templates -->
-<template id="tpl-aiguide-start-ru">
-  <div class="guide">
-    <h2>AI-гид</h2>
-    <p>Спокойные подсказки для осмысленной работы с AI. Без магии и без обещаний «супер-результатов» — только практика.</p>
-    <h3>Начните отсюда</h3>
-    <p>Если AI отвечает «не тем», чаще всего проблема не в модели, а в формулировке запроса.</p>
-    <p>Этот гид помогает уточнять цель, задавать контекст и получать более предсказуемые ответы.</p>
-    <h3>В чём AI действительно хорош</h3>
-    <ul>
-      <li>переформулировать и структурировать текст</li>
-      <li>помогать с логикой и последовательностью</li>
-      <li>предлагать варианты</li>
-      <li>проверять ясность формулировок</li>
-    </ul>
-    <p>AI плохо угадывает то, что вы «имели в виду, но не написали». Лучше сказать прямо.</p>
-  </div>
-</template>
-
-<template id="tpl-aiguide-hygiene-ru">
-  <div class="guide">
-    <h2>Гигиена</h2>
-    <p>Пара привычек, которые экономят время и берегут нервы.</p>
-    <h3>Одна задача — один запрос</h3>
-    <p>Если в одном промпте смешаны анализ, генерация, редактирование и сравнение — AI почти всегда начнёт «плыть».</p>
-    <ol>
-      <li>Сформулируйте одну задачу.</li>
-      <li>Получите результат.</li>
-      <li>Уточните следующей короткой итерацией.</li>
-    </ol>
-    <h3>Частые ошибки</h3>
-    <ul>
-      <li>слишком абстрактная цель</li>
-      <li>нет ограничений по формату и объёму</li>
-      <li>слишком много вводных без структуры</li>
-      <li>ожидание, что AI угадает контекст</li>
-    </ul>
-  </div>
-</template>
-
-<template id="tpl-aiguide-golden-ru">
-  <div class="guide">
-    <h2>Золотые правила</h2>
-    <p>Это не про «идеальный промпт». Это про устойчивый процесс.</p>
-    <h3>Золотой путь</h3>
-    <ul>
-      <li>фиксируйте формулировку перед запуском</li>
-      <li>меняйте по одной вещи за раз</li>
-      <li>сохраняйте рабочие версии</li>
-      <li>не оптимизируйте раньше времени</li>
-    </ul>
-    <p>Хороший результат — это несколько спокойных шагов, а не один «гениальный» запрос.</p>
-  </div>
-</template>
-
-<template id="tpl-aiguide-south-ru">
-  <div class="guide">
-    <h2>Когда всё пошло не так</h2>
-    <p>Если ответ странный — это почти всегда лечится упрощением.</p>
-    <ul>
-      <li>уберите лишние задачи и оставьте одну</li>
-      <li>добавьте ограничения (формат, стиль, объём)</li>
-      <li>попросите задать вам 1–3 уточняющих вопроса</li>
-      <li>дайте маленький пример желаемого результата</li>
-    </ul>
-    <p>Если вы сомневаетесь — начните с короткого «черновика промпта», а потом уточняйте.</p>
-  </div>
-</template>
-
-<template id="tpl-aiguide-patterns-ru">
-  <div class="guide">
-    <h2>Паттерны</h2>
-    <p>Шаблон хорошего промпта (простая версия):</p>
-    <ul>
-      <li><strong>Цель:</strong> что вы хотите получить</li>
-      <li><strong>Контекст:</strong> для чего это нужно</li>
-      <li><strong>Ограничения:</strong> формат, стиль, объём</li>
-      <li><strong>Роль:</strong> редактор, аналитик, помощник</li>
-    </ul>
-    <p>Не обязательно добавлять всё сразу. Иногда достаточно цели и формата.</p>
-  </div>
-</template>
-
-<template id="tpl-aiguide-playbooks-ru">
-  <div class="guide">
-    <h2>Плейбуки</h2>
-    <h3>Проверка промпта</h3>
-    <p>Prompt Check помогает увидеть пробелы и переписать запрос более ясно.</p>
-    <p>Рекомендуемый процесс:</p>
-    <ol>
-      <li>Вставьте промпт.</li>
-      <li>Добавьте цель и ограничения.</li>
-      <li>Скопируйте «Золотой вариант».</li>
-      <li>Проверьте результат в AI-чате.</li>
-    </ol>
-    <p>Это инструмент структуры — не «угадыватель» ваших намерений.</p>
-  </div>
-</template>
-
-<template id="tpl-aiguide-examples-ru">
-  <div class="guide">
-    <h2>Примеры</h2>
-    <p>Сделайте запрос конкретнее — и ответы станут лучше.</p>
-    <h3>Пример: переписать текст</h3>
-    <p><em>Задача:</em> перепишите текст в спокойном, деловом стиле. Формат: 3–5 коротких абзацев. Сохраните смысл. Без канцелярита.</p>
-    <h3>Пример: план действий</h3>
-    <p><em>Задача:</em> составьте план из 7 шагов. Укажите «что сделать» и «как проверить, что готово». Без лишних пояснений.</p>
-    <p>Если вы хотите больше точности — добавьте один маленький пример желаемого результата.</p>
-  </div>
-</template>
-
 
 <template id="tpl-aiguide-buddy">
   <div class="card">
