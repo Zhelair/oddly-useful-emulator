@@ -78,6 +78,11 @@
   document.getElementById("year").textContent = new Date().getFullYear();
   document.getElementById("footerSupport").href = supportUrl;
 
+  // Theme (visuals only)
+  const getTheme = ()=> localStorage.getItem("ou_theme") || "modern";
+  const applyTheme = (t)=>{ document.body.dataset.theme = t || "modern"; };
+  applyTheme(getTheme());
+
   const ROUTES = {
     home:{menu:"tpl-menu-home", content:"tpl-content-home"},
     projects:{menu:"tpl-menu-projects", content:"tpl-content-projects"},
@@ -627,11 +632,11 @@
     document.getElementById("aboutText").textContent = data.aboutText || "";
     document.getElementById("aboutSupport").href = supportUrl;
 
-    const saved = localStorage.getItem("ou_theme") || "retro";
+    const saved = localStorage.getItem("ou_theme") || "modern";
     document.body.dataset.theme = saved;
     document.querySelectorAll('input[name="theme"]').forEach(r=>{
       r.checked = r.value===saved;
-      r.onchange=()=>{ if(!r.checked) return; document.body.dataset.theme=r.value; localStorage.setItem("ou_theme", r.value); };
+      r.onchange=()=>{ if(!r.checked) return; applyTheme(r.value); localStorage.setItem("ou_theme", r.value); };
     });
 
     const provider=document.getElementById("aiProvider");
