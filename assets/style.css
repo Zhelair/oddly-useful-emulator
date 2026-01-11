@@ -145,20 +145,12 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
     overflow-x:auto;
     padding:10px;
     border-radius:14px;
-    position:sticky;
-    top:0;
-    z-index:5;
-    background:rgba(255,255,255,.92);
-    backdrop-filter: blur(6px);
-    border:1px solid var(--line);
   }
   .buddy__title{display:none}
   .buddy__mod{
     white-space:nowrap;
     flex:0 0 auto;
-    padding:12px 14px;
-    font-size:16px;
-    min-width:140px;
+    padding:10px 12px;
   }
   .panels{grid-template-columns:1fr}
   .menu__scroll{max-height:none}
@@ -178,3 +170,45 @@ body[data-theme=modern] .screen__bg{opacity:.45;background:radial-gradient(70% 5
 .settings__note{font-size:12px;opacity:.82;margin-top:8px;line-height:1.35;}
 
 .output--input{width:100%;min-height:220px;resize:vertical;overflow:auto;-webkit-overflow-scrolling:touch}
+
+
+/* Prompt Check UX polish */
+.pc__chips{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:10px 0 2px;
+}
+.chip{
+  border:1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.75);
+  padding:10px 12px;
+  border-radius:999px;
+  font-size:14px;
+  line-height:1;
+  cursor:pointer;
+}
+.chip:active{ transform: translateY(1px); }
+
+.pc__meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:8px 0 12px;
+}
+.pc__usage{
+  font-size:13px;
+  opacity:.85;
+}
+.btn--ghost{
+  background: rgba(255,255,255,.65);
+  border:1px solid rgba(0,0,0,.14);
+}
+
+@media (max-width: 720px){
+  .pc__chips{ gap:8px; }
+  .chip{ padding:12px 14px; font-size:14px; }
+  .pc__section{ margin-bottom:12px; }
+  .pc__pre{ font-size:14px; }
+}
