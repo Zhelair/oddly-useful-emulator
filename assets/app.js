@@ -366,19 +366,9 @@
       usageEl.textContent = `Prompt Checks: ${u.count||0} / ${HOUSE_DAILY_LIMIT} today • Resets 00:00 Sofia`;
       return Math.max(0, HOUSE_DAILY_LIMIT-(u.count||0));
     };
-    // Safety wrapper: never let a usage badge crash the whole Prompting Buddy page.
-    // (Useful if a cached/older DOM template is missing expected elements.)
-    const safeUpdateUsageUI = ()=>{
-      try{ return updateUsageUI(); }
-      catch(e){
-        console.warn("updateUsageUI failed", e);
-        if(usageEl) usageEl.textContent = "";
-        return null;
-      }
-    };
-    safeUpdateUsageUI();
+    updateUsageUI();
     if(accessSel){
-      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); safeUpdateUsageUI(); };
+      accessSel.onchange = ()=>{ localStorage.setItem(LS.aiAccess, accessSel.value); updateUsageUI(); };
     }
 
 
@@ -423,7 +413,7 @@
         if(!apiKey){ err.textContent="Prompt Check requires your API key. You can add it in About → Settings."; return; }
       }else{
         const u=getHouseUsage();
-        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); safeUpdateUsageUI(); return; }
+        if((u.count||0) >= HOUSE_DAILY_LIMIT){ err.textContent="Daily limit reached. This resets at 00:00 Sofia."; flashStatus("Daily limit reached — come back tomorrow.", 2600); updateUsageUI(); return; }
         if(!HOUSE_ENDPOINT){ err.textContent="House key mode needs a backend proxy. Set house.endpoint in assets/data.js."; return; }
         const pass=(localStorage.getItem(LS.premiumPass)||"").trim();
         if(!pass){ err.textContent="Missing passphrase in this browser. Re-enter Premium passphrase."; return; }
@@ -439,7 +429,7 @@
           const pass = (localStorage.getItem(LS.premiumPass)||"").trim();
           text = await HOUSE.promptCheck({ endpoint: HOUSE_ENDPOINT, passphrase: pass, model, userPrompt: prompt });
           incHouseUsage();
-          safeUpdateUsageUI();
+          updateUsageUI();
         }
         const parsed = parsePromptCheck(text);
         renderPromptCheck(out, parsed, text);

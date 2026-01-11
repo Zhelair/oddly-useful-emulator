@@ -2,14 +2,9 @@ name = "oddly-useful-house-proxy"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
 
-[vars]
-# Optional: default daily limit. Can be overridden by payload.dailyLimit.
-DAILY_LIMIT = "15"
-
-[[durable_objects.bindings]]
-name = "RATE_LIMITER"
-class_name = "RateLimiter"
+[durable_objects]
+bindings = [{ name = "RATE_LIMITER", class_name = "RateLimiter" }]
 
 [[migrations]]
 tag = "v1"
-new_classes = ["RateLimiter"]
+new_sqlite_classes = ["RateLimiter"]
