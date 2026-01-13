@@ -667,7 +667,7 @@
     const EX={
       thinker_clarify:{bad:"I have an idea but it’s not clear yet. Help me.",
   improved:"I have an early idea. Can you help me make it clearer?",
-  golden:"I have a rough idea that isn’t fully formed.
+  golden:`I have a rough idea that isn’t fully formed.
 
 Before proposing solutions:
 - ask clarifying questions
@@ -675,11 +675,11 @@ Before proposing solutions:
 - separate assumptions from facts
 - summarize the idea back to me in 2–3 clear sentences
 
-Do not suggest solutions yet.",
+Do not suggest solutions yet.`,
   why:"Problem-first thinking prevents premature answers and forces shared understanding."},
 writer_email:{bad:"Write an email to my client about the delay.",
   improved:"Write a professional email explaining a project delay.",
-  golden:"Write a professional email to a client about a project delay.
+  golden:`Write a professional email to a client about a project delay.
 
 Constraints:
 - tone: calm, respectful, and accountable
@@ -693,11 +693,11 @@ Structure the email with:
 - next steps
 - polite closing
 
-Output only the final email text.",
+Output only the final email text.`,
   why:"Specific constraints turn a stressful writing task into a controlled, repeatable process."},
 visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
   improved:"Create a cinematic image of a woman walking through a futuristic city at night.",
-  golden:"I want to create a visual prompt, but the output depends on the medium.
+  golden:`I want to create a visual prompt, but the output depends on the medium.
 
 Before generating anything:
 - ask whether this is for an image (e.g. Midjourney) or a video
@@ -711,7 +711,7 @@ If this is an image:
 If this is a video:
 - focus on movement, pacing, and camera behavior
 
-Do not generate the final prompt until the medium is confirmed.",
+Do not generate the final prompt until the medium is confirmed.`,
   why:"Images describe what is seen. Videos describe what changes over time. Separating the two prevents unusable prompts."},
 
       planapp:{bad:"I have an idea for an app. Can you help me build it?",
