@@ -8,7 +8,7 @@
   const premiumPassphrases = Array.isArray(premium.passphrases) ? premium.passphrases : [];
   const houseCfg = data.house || {};
   const HOUSE_ENDPOINT = (houseCfg.endpoint||"").trim();
-  const HOUSE_DAILY_LIMIT = Number(houseCfg.dailyLimit||30);
+  const HOUSE_DAILY_LIMIT = Number(houseCfg.dailyLimit||15);
   const HOUSE_MAX_WORDS = Number(houseCfg.maxWords||2000);
   const HOUSE_TZ = (houseCfg.timezone||"Europe/Sofia").trim();
 
@@ -422,9 +422,7 @@
 
     // Access mode (BYO key vs House key)
     const syncAccessUI = ()=>{
-      const stored = localStorage.getItem(LS.aiAccess);
-      const mode = stored ? stored : "house";
-      if(!stored) localStorage.setItem(LS.aiAccess, mode);
+      const mode = localStorage.getItem(LS.aiAccess) || "byo";
       if(accessSel) accessSel.value = mode;
       // keep About → Settings dropdown in sync if it exists
       const aboutSel = document.getElementById("aiAccess");
@@ -667,6 +665,55 @@
   }
   function initModuleC(){
     const EX={
+      thinker_clarify:{bad:"I have an idea but it’s not clear yet. Help me.",
+  improved:"I have an early idea. Can you help me make it clearer?",
+  golden:"I have a rough idea that isn’t fully formed.
+
+Before proposing solutions:
+- ask clarifying questions
+- identify the core problem
+- separate assumptions from facts
+- summarize the idea back to me in 2–3 clear sentences
+
+Do not suggest solutions yet.",
+  why:"Problem-first thinking prevents premature answers and forces shared understanding."},
+writer_email:{bad:"Write an email to my client about the delay.",
+  improved:"Write a professional email explaining a project delay.",
+  golden:"Write a professional email to a client about a project delay.
+
+Constraints:
+- tone: calm, respectful, and accountable
+- explain the reason briefly without over-justifying
+- include a revised timeline or next step
+- avoid blame and emotional language
+
+Structure the email with:
+- short opening context
+- clear explanation
+- next steps
+- polite closing
+
+Output only the final email text.",
+  why:"Specific constraints turn a stressful writing task into a controlled, repeatable process."},
+visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
+  improved:"Create a cinematic image of a woman walking through a futuristic city at night.",
+  golden:"I want to create a visual prompt, but the output depends on the medium.
+
+Before generating anything:
+- ask whether this is for an image (e.g. Midjourney) or a video
+- clarify if motion is required or implied
+- confirm framing (close-up, medium, wide)
+- confirm mood and lighting
+
+If this is an image:
+- focus on composition, detail, and atmosphere
+
+If this is a video:
+- focus on movement, pacing, and camera behavior
+
+Do not generate the final prompt until the medium is confirmed.",
+  why:"Images describe what is seen. Videos describe what changes over time. Separating the two prevents unusable prompts."},
+
       planapp:{bad:"I have an idea for an app. Can you help me build it?",
         improved:"I want to build a productivity app. Can you suggest features and a UI?",
         golden:"I want to explore an app idea.\nBefore suggesting features:\n- ask clarifying questions\n- define the core problem\n- identify what this app is NOT\nDo not suggest UI or features yet.",
