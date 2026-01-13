@@ -8,7 +8,7 @@
   const premiumPassphrases = Array.isArray(premium.passphrases) ? premium.passphrases : [];
   const houseCfg = data.house || {};
   const HOUSE_ENDPOINT = (houseCfg.endpoint||"").trim();
-  const HOUSE_DAILY_LIMIT = Number(houseCfg.dailyLimit||15);
+  const HOUSE_DAILY_LIMIT = Number(houseCfg.dailyLimit||30);
   const HOUSE_MAX_WORDS = Number(houseCfg.maxWords||2000);
   const HOUSE_TZ = (houseCfg.timezone||"Europe/Sofia").trim();
 
@@ -422,7 +422,9 @@
 
     // Access mode (BYO key vs House key)
     const syncAccessUI = ()=>{
-      const mode = localStorage.getItem(LS.aiAccess) || "byo";
+      const stored = localStorage.getItem(LS.aiAccess);
+      const mode = stored ? stored : "house";
+      if(!stored) localStorage.setItem(LS.aiAccess, mode);
       if(accessSel) accessSel.value = mode;
       // keep About → Settings dropdown in sync if it exists
       const aboutSel = document.getElementById("aiAccess");

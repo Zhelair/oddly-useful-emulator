@@ -200,7 +200,7 @@
           <li>Plan first — execute later</li>
         </ul>
         <div class="card__actions">
-          <a class="btn btn--primary" id="premiumBuy" href="#" target="_blank" rel="noopener">Get access on BuyMeACoffee ☕</a>
+          <a class="btn btn--primary" id="premiumBuy" href="#" target="_blank" rel="noopener">Purchase passphrase</a>
           <button class="btn" id="premiumHave" type="button">I already have a passphrase</button>
         </div>
         <div id="premiumUnlock" class="unlock" hidden>
@@ -342,8 +342,8 @@
         <div class="settings__row">
           <label for="pcAccess">Access</label>
           <select id="pcAccess">
+            <option value="house">Included key (up to 30/day)</option>
             <option value="byo">My API key</option>
-            <option value="house">Included key (15/day)</option>
           </select>
         </div>
 <div class="settings__row">
@@ -367,7 +367,7 @@
         </div>
       </section>
     </div>
-    <p class="panel__note">🔐 Prompt Check runs locally in your browser using your API key. No prompts or keys are stored or tracked.</p>
+    <p class="panel__note">🔐 Prompt Check runs only when you click. If you use your own key, it runs from your browser. If you use the included key, requests go through the House proxy. No prompts or keys are stored or tracked.</p>
   </div>
 </template>
 
@@ -427,8 +427,8 @@
       <div class="settings__row">
         <label for="aiAccess" id="lblAccess">Access</label>
         <select id="aiAccess">
+          <option value="house">Use included key (up to 30/day)</option>
           <option value="byo">Use my API key (recommended)</option>
-          <option value="house">Use included DeepSeek key (15/day)</option>
         </select>
       </div>
 
@@ -441,7 +441,7 @@
         <button class="btn" id="clearKey" type="button">Clear key</button>
       </div>
       <div class="settings__status" id="settingsStatus" aria-live="polite"></div>
-      <div class="settings__note" id="houseNote">House key is limited to <b>15 prompt checks/day</b> and <b>2000 words max</b>. Resets at <b>00:00 Sofia</b>.</div>
+      <div class="settings__note" id="houseNote">Included key is limited to <b>up to 30 prompt checks/day</b> and <b>2000 words max</b>. Resets at <b>00:00 Sofia</b>.</div>
     </div></article>
   </div>
 </template>
