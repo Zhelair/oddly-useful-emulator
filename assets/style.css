@@ -454,18 +454,3 @@ body[data-theme="nostalgia"][data-variant="magnetic-tape"] .output:focus{
   border-color: rgba(122,252,255,.45);
 }
 
-
-
-/* Mobile “rich button” feel (matches desktop weight) */
-@media (max-width: 720px){
-  .btn, .navbtn, .menu__item, .buddy__mod{
-    box-shadow: 0 6px 14px rgba(0,0,0,.10);
-  }
-  .btn:active, .navbtn:active, .menu__item:active, .buddy__mod:active{
-    transform: translateY(1px);
-    box-shadow: 0 3px 8px rgba(0,0,0,.12);
-  }
-  .btn, .navbtn{
-    padding: 12px 14px; /* slightly larger tap target */
-  }
-}
