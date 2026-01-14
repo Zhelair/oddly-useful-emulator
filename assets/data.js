@@ -3,7 +3,7 @@ window.OU_DATA = {
   premium: {
     // Where the Premium button should send people.
     // Tip: replace with your BuyMeACoffee *product* link when you create it.
-    productUrl: "https://buymeacoffee.com/niksales73l",
+    productUrl: "https://buymeacoffee.com/niksales73l/e/498764",
     // One global passphrase (simple launch model). Change anytime.
     // Note: this is light protection (works on GitHub Pages without a backend).
     passphrases: ["ODDLY-USEFUL-2026"]
