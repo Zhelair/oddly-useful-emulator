@@ -351,15 +351,19 @@
       if(!v){ status.textContent="Paste a passphrase to unlock."; return; }
       // Keep the gate lightweight: let the backend be the source of truth.
       // (This also avoids breakage when you rotate passphrases server-side.)
-      const ok = premiumPassphrases.length ? premiumPassphrases.some(p=>String(p).trim()===v) : true;
-      if(!ok){
-        status.textContent="Saved. If it’s wrong, Prompt Check will ask you to re-enter.";
-      }
-      localStorage.setItem(LS.premiumUnlocked,"1");
-      localStorage.setItem(LS.premiumPass, v);
-      status.textContent="✅ Premium enabled for this browser.";
-      setTimeout(()=>initBuddy("d"), 450);
-    };
+      const ok = premiumPassphrases.some(p => String(p).trim() === v);
+
+if(!ok){
+  status.textContent="❌ Invalid passphrase. Check the spelling and try again.";
+  return;
+}
+
+localStorage.setItem(LS.premiumUnlocked,"1");
+localStorage.setItem(LS.premiumPass, v);
+status.textContent="✅ Premium enabled for this browser.";
+setTimeout(()=>initBuddy("d"), 450);
+
+ };
   }
   function initBuddy(key){
     const main=document.getElementById("buddyMain");
