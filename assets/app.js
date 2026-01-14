@@ -664,7 +664,7 @@
     };
   }
   function initModuleC(){
-    const EX={
+        const EX={
       thinker_clarify:{bad:"I have an idea but it’s not clear yet. Help me.",
   improved:"I have an early idea. Can you help me make it clearer?",
   golden:`I have a rough idea that isn’t fully formed.
@@ -677,7 +677,7 @@ Before proposing solutions:
 
 Do not suggest solutions yet.`,
   why:"Problem-first thinking prevents premature answers and forces shared understanding."},
-writer_email:{bad:"Write an email to my client about the delay.",
+      writer_email:{bad:"Write an email to my client about the delay.",
   improved:"Write a professional email explaining a project delay.",
   golden:`Write a professional email to a client about a project delay.
 
@@ -695,7 +695,20 @@ Structure the email with:
 
 Output only the final email text.`,
   why:"Specific constraints turn a stressful writing task into a controlled, repeatable process."},
-visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
+      writer_headline:{bad:"Improve productivity with AI tools",
+  improved:"How AI tools can help you work faster and be more productive",
+  golden:`Rewrite the headline below to make it specific, concrete, and outcome-focused.
+
+Rules:
+- address a clear reader (who is this for?)
+- highlight one tangible benefit
+- avoid buzzwords and hype
+- keep it under 12 words
+
+Original headline:
+Improve productivity with AI tools`,
+  why:"Forces clarity (audience + one concrete benefit) instead of vague slogans."},
+      visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
   improved:"Create a cinematic image of a woman walking through a futuristic city at night.",
   golden:`I want to create a visual prompt, but the output depends on the medium.
 
@@ -713,19 +726,39 @@ If this is a video:
 
 Do not generate the final prompt until the medium is confirmed.`,
   why:"Images describe what is seen. Videos describe what changes over time. Separating the two prevents unusable prompts."},
+      creator_tiktok:{bad:"Today I want to talk about how AI can help you be more productive.",
+  improved:"Did you know AI can actually save you a lot of time at work?",
+  golden:`Rewrite the opening line for a TikTok video hook (first 3 seconds).
 
-      planapp:{bad:"I have an idea for an app. Can you help me build it?",
-        improved:"I want to build a productivity app. Can you suggest features and a UI?",
-        golden:"I want to explore an app idea.\nBefore suggesting features:\n- ask clarifying questions\n- define the core problem\n- identify what this app is NOT\nDo not suggest UI or features yet.",
-        why:"Problem-first thinking stops random feature lists and gives you control."},
-      promptcraft:{bad:"Write me a perfect prompt for anything.",
-        improved:"Write a prompt to help me plan a small web app.",
-        golden:"Help me plan a small web app.\nConstraints:\n- free tools only\n- mobile-friendly\n- one change at a time\nAsk questions first. Then propose a tiny next step. Wait for DEPLOY before big code.",
-        why:"Constraints + staging prevents chaos and keeps the output usable."},
-      fixidea:{bad:"This idea is broken. Fix it.",
-        improved:"Here’s my idea. Please point out problems and suggest improvements.",
-        golden:"I will paste my idea.\nYour job:\n1) identify the 3 biggest risks\n2) propose 2 simpler versions\n3) suggest a first experiment that costs €0\nKeep it direct. No fluff.",
-        why:"You get diagnosis, options, and action — not endless theory."}
+Rules:
+- spoken language (sounds natural out loud)
+- create curiosity or tension
+- no greetings, no setup, no filler
+- one short sentence only
+
+Topic:
+Using AI to save time at work`,
+  why:"Short-form needs attention first. This removes filler and optimizes for spoken impact."},
+      editor_capcut:{bad:"Edit this video to look dynamic and engaging. Add effects and music.",
+  improved:"Create a short video edit plan with cuts, captions, and background music.",
+  golden:`Create a CapCut edit plan for a short vertical video.
+
+Input:
+- one talking-head clip (30 seconds)
+- topic: explaining a simple AI tip
+
+Output format:
+1) Opening (first 2–3 seconds): hook style + caption
+2) Main section: where to cut pauses + add emphasis
+3) Captions: style, size, placement
+4) B-roll or overlays (if any)
+5) Ending: how to close cleanly
+
+Constraints:
+- use CapCut features only
+- keep it simple and fast
+- no cinematic jargon`,
+  why:"Turns vague direction into a tool-aware, repeatable editing workflow."}
     };
     const sel=document.getElementById("cExampleSelect");
     const render=(k)=>{const e=EX[k]||EX.planapp;
