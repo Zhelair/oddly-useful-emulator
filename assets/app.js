@@ -25,6 +25,29 @@
       lang: "ou_lang"
 };
 
+  // Theme (visual-only) — global, persistent
+  const THEME_LS = {
+    theme: "ou_theme",
+    variantKey: (t)=> `ou_theme_variant_${t}`
+  };
+
+  function getTheme(){
+    return (localStorage.getItem(THEME_LS.theme) || "modern").trim();
+  }
+  function getVariant(theme){
+    const t = (theme || getTheme()).trim();
+    return (localStorage.getItem(THEME_LS.variantKey(t)) || "default").trim();
+  }
+  function applyTheme(theme, variant){
+    const t = (theme || getTheme() || "modern").trim();
+    const v = (variant || getVariant(t) || "default").trim();
+    document.body.dataset.theme = t;
+    document.body.dataset.variant = v;
+    localStorage.setItem(THEME_LS.theme, t);
+    localStorage.setItem(THEME_LS.variantKey(t), v);
+  }
+
+
   // Language (EN/RU/BG-ready) — frontend only
   function getLang(){
     const v = (localStorage.getItem(LS.lang)||"en").trim().toLowerCase();
@@ -85,6 +108,8 @@
 
   // Init i18n (frontend only)
   applyLangData();
+  // Apply theme early so it affects every screen (not only About)
+  applyTheme();
   
   // House-key limits (client-side display; server-side enforcement is done by the Worker)
   const sofiaDateKey = ()=>{
@@ -664,7 +689,7 @@
     };
   }
   function initModuleC(){
-        const EX={
+    const EX={
       thinker_clarify:{bad:"I have an idea but it’s not clear yet. Help me.",
   improved:"I have an early idea. Can you help me make it clearer?",
   golden:`I have a rough idea that isn’t fully formed.
@@ -677,7 +702,7 @@ Before proposing solutions:
 
 Do not suggest solutions yet.`,
   why:"Problem-first thinking prevents premature answers and forces shared understanding."},
-      writer_email:{bad:"Write an email to my client about the delay.",
+writer_email:{bad:"Write an email to my client about the delay.",
   improved:"Write a professional email explaining a project delay.",
   golden:`Write a professional email to a client about a project delay.
 
@@ -695,20 +720,76 @@ Structure the email with:
 
 Output only the final email text.`,
   why:"Specific constraints turn a stressful writing task into a controlled, repeatable process."},
-      writer_headline:{bad:"Improve productivity with AI tools",
-  improved:"How AI tools can help you work faster and be more productive",
-  golden:`Rewrite the headline below to make it specific, concrete, and outcome-focused.
+writer_headline:{bad:"Make this headline better.",
+  improved:"Rewrite this headline to be clearer and more clickable (no clickbait).",
+  golden:`Rewrite the following headline / hook.
 
-Rules:
-- address a clear reader (who is this for?)
-- highlight one tangible benefit
-- avoid buzzwords and hype
-- keep it under 12 words
+Input:
+- original headline: "<PASTE HERE>"
 
-Original headline:
-Improve productivity with AI tools`,
-  why:"Forces clarity (audience + one concrete benefit) instead of vague slogans."},
-      visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
+Goal:
+- keep the same meaning
+- make it clearer and more compelling
+- no clickbait, no exaggeration
+
+Constraints:
+- provide 5 options
+- keep each under 10 words
+- keep the tone: confident, modern, human
+
+Output:
+- 5 headline options (numbered)
+- then 1 sentence explaining what changed (clarity, specificity, benefit).`,
+  why:"Headlines are small but high-impact. Tight constraints produce usable options fast."},
+creator_tiktok:{bad:"Write a TikTok hook for my video.",
+  improved:"Write 5 TikTok hooks for a 30–60s video about my topic.",
+  golden:`Create TikTok hooks for this video.
+
+Context:
+- topic: <TOPIC>
+- audience: <WHO IS THIS FOR?>
+- vibe: <fun / serious / cinematic / educational>
+- length: <30s / 60s / 90s>
+- what viewers get: <1 clear benefit>
+
+Task:
+- write 10 hook options (1–2 lines each)
+- each hook must create curiosity + promise a payoff
+- avoid generic lines like “you won’t believe…”
+
+Also include:
+- 3 on-screen text versions (max 6 words each)
+- 3 opening shot ideas (what we see in the first 2 seconds)
+
+Output only the hooks + text + shot ideas.`,
+  why:"Hooks fail when they’re generic. Forcing payoff + first-2-seconds visuals makes them perform."},
+editor_capcut:{bad:"Help me edit my video in CapCut.",
+  improved:"Give me a CapCut edit plan for a short TikTok video.",
+  golden:`Create a CapCut edit plan for this video.
+
+Inputs:
+- raw footage description: <WHAT YOU SHOT>
+- goal: <what the viewer should feel/do>
+- platform: <TikTok / Reels / Shorts>
+- final length: <seconds>
+- style refs (optional): <creator / vibe>
+
+Deliver:
+1) Timeline plan (0–X seconds) with beats:
+   - hook moment
+   - key message moments
+   - pattern breaks (zoom / cut / text)
+   - payoff / CTA
+2) CapCut actions list:
+   - cuts (where and why)
+   - text overlays (exact text + timing)
+   - b-roll suggestions (what to add)
+   - sound (music / SFX cues)
+3) Export settings + safe caption style (readable on phone)
+
+Keep it practical. Assume I want fast results, not perfection.`,
+  why:"Editors need a timeline + actions, not vague advice. This turns ‘edit it’ into a checklist."},
+visual_image_video:{bad:"Create a cinematic scene of a woman walking through a futuristic city.",
   improved:"Create a cinematic image of a woman walking through a futuristic city at night.",
   golden:`I want to create a visual prompt, but the output depends on the medium.
 
@@ -726,39 +807,19 @@ If this is a video:
 
 Do not generate the final prompt until the medium is confirmed.`,
   why:"Images describe what is seen. Videos describe what changes over time. Separating the two prevents unusable prompts."},
-      creator_tiktok:{bad:"Today I want to talk about how AI can help you be more productive.",
-  improved:"Did you know AI can actually save you a lot of time at work?",
-  golden:`Rewrite the opening line for a TikTok video hook (first 3 seconds).
 
-Rules:
-- spoken language (sounds natural out loud)
-- create curiosity or tension
-- no greetings, no setup, no filler
-- one short sentence only
-
-Topic:
-Using AI to save time at work`,
-  why:"Short-form needs attention first. This removes filler and optimizes for spoken impact."},
-      editor_capcut:{bad:"Edit this video to look dynamic and engaging. Add effects and music.",
-  improved:"Create a short video edit plan with cuts, captions, and background music.",
-  golden:`Create a CapCut edit plan for a short vertical video.
-
-Input:
-- one talking-head clip (30 seconds)
-- topic: explaining a simple AI tip
-
-Output format:
-1) Opening (first 2–3 seconds): hook style + caption
-2) Main section: where to cut pauses + add emphasis
-3) Captions: style, size, placement
-4) B-roll or overlays (if any)
-5) Ending: how to close cleanly
-
-Constraints:
-- use CapCut features only
-- keep it simple and fast
-- no cinematic jargon`,
-  why:"Turns vague direction into a tool-aware, repeatable editing workflow."}
+      planapp:{bad:"I have an idea for an app. Can you help me build it?",
+        improved:"I want to build a productivity app. Can you suggest features and a UI?",
+        golden:"I want to explore an app idea.\nBefore suggesting features:\n- ask clarifying questions\n- define the core problem\n- identify what this app is NOT\nDo not suggest UI or features yet.",
+        why:"Problem-first thinking stops random feature lists and gives you control."},
+      promptcraft:{bad:"Write me a perfect prompt for anything.",
+        improved:"Write a prompt to help me plan a small web app.",
+        golden:"Help me plan a small web app.\nConstraints:\n- free tools only\n- mobile-friendly\n- one change at a time\nAsk questions first. Then propose a tiny next step. Wait for DEPLOY before big code.",
+        why:"Constraints + staging prevents chaos and keeps the output usable."},
+      fixidea:{bad:"This idea is broken. Fix it.",
+        improved:"Here’s my idea. Please point out problems and suggest improvements.",
+        golden:"I will paste my idea.\nYour job:\n1) identify the 3 biggest risks\n2) propose 2 simpler versions\n3) suggest a first experiment that costs €0\nKeep it direct. No fluff.",
+        why:"You get diagnosis, options, and action — not endless theory."}
     };
     const sel=document.getElementById("cExampleSelect");
     const render=(k)=>{const e=EX[k]||EX.planapp;
@@ -787,12 +848,64 @@ Constraints:
       };
     });
 
-    const saved = localStorage.getItem("ou_theme") || "retro";
-    document.body.dataset.theme = saved;
+
+    // Theme + variant (Modern is the default)
+    const themeSaved = getTheme();
+    const variantSaved = getVariant(themeSaved);
+    applyTheme(themeSaved, variantSaved);
+
+    const variantRow = document.getElementById("themeVariantRow");
+
+    const VARIANTS = {
+      retro: [
+        { key:"neon-grid", label:"Neon Grid" },
+        { key:"candy-console", label:"Candy Console" }
+      ],
+      nostalgia: [
+        { key:"cardboard-arcade", label:"Cardboard Arcade" },
+        { key:"magnetic-tape", label:"Magnetic Tape" }
+      ],
+      modern: []
+    };
+
+    function renderVariantRow(theme){
+      if(!variantRow) return;
+      const list = VARIANTS[theme] || [];
+      if(!list.length){
+        variantRow.innerHTML = "";
+        return;
+      }
+      const current = getVariant(theme);
+      variantRow.innerHTML = list.map(v=>{
+        const checked = (v.key===current) ? "checked" : "";
+        return `<label><input type="radio" name="themeVariant" value="${v.key}" ${checked}/> ${v.label}</label>`;
+      }).join("");
+      variantRow.querySelectorAll('input[name="themeVariant"]').forEach(r=>{
+        r.onchange = ()=>{
+          if(!r.checked) return;
+          applyTheme(theme, r.value);
+        };
+      });
+    }
+
     document.querySelectorAll('input[name="theme"]').forEach(r=>{
-      r.checked = r.value===saved;
-      r.onchange=()=>{ if(!r.checked) return; document.body.dataset.theme=r.value; localStorage.setItem("ou_theme", r.value); };
+      r.checked = (r.value===themeSaved);
+      r.onchange = ()=>{
+        if(!r.checked) return;
+        const t = r.value;
+        // If switching to a theme with variants, keep last-used variant or fall back to first option.
+        let v = getVariant(t);
+        const list = VARIANTS[t] || [];
+        if(list.length && (!v || v==="default")){
+          v = list[0].key;
+        }
+        applyTheme(t, v);
+        renderVariantRow(t);
+      };
     });
+
+    renderVariantRow(themeSaved);
+
 
     const provider=document.getElementById("aiProvider");
     const access=document.getElementById("aiAccess");
