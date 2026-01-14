@@ -25,29 +25,6 @@
       lang: "ou_lang"
 };
 
-  // Theme (visual-only) — global, persistent
-  const THEME_LS = {
-    theme: "ou_theme",
-    variantKey: (t)=> `ou_theme_variant_${t}`
-  };
-
-  function getTheme(){
-    return (localStorage.getItem(THEME_LS.theme) || "modern").trim();
-  }
-  function getVariant(theme){
-    const t = (theme || getTheme()).trim();
-    return (localStorage.getItem(THEME_LS.variantKey(t)) || "default").trim();
-  }
-  function applyTheme(theme, variant){
-    const t = (theme || getTheme() || "modern").trim();
-    const v = (variant || getVariant(t) || "default").trim();
-    document.body.dataset.theme = t;
-    document.body.dataset.variant = v;
-    localStorage.setItem(THEME_LS.theme, t);
-    localStorage.setItem(THEME_LS.variantKey(t), v);
-  }
-
-
   // Language (EN/RU/BG-ready) — frontend only
   function getLang(){
     const v = (localStorage.getItem(LS.lang)||"en").trim().toLowerCase();
@@ -108,8 +85,6 @@
 
   // Init i18n (frontend only)
   applyLangData();
-  // Apply theme early so it affects every screen (not only About)
-  applyTheme();
   
   // House-key limits (client-side display; server-side enforcement is done by the Worker)
   const sofiaDateKey = ()=>{
@@ -779,64 +754,12 @@ Do not generate the final prompt until the medium is confirmed.`,
       };
     });
 
-
-    // Theme + variant (Modern is the default)
-    const themeSaved = getTheme();
-    const variantSaved = getVariant(themeSaved);
-    applyTheme(themeSaved, variantSaved);
-
-    const variantRow = document.getElementById("themeVariantRow");
-
-    const VARIANTS = {
-      retro: [
-        { key:"neon-grid", label:"Neon Grid" },
-        { key:"candy-console", label:"Candy Console" }
-      ],
-      nostalgia: [
-        { key:"cardboard-arcade", label:"Cardboard Arcade" },
-        { key:"magnetic-tape", label:"Magnetic Tape" }
-      ],
-      modern: []
-    };
-
-    function renderVariantRow(theme){
-      if(!variantRow) return;
-      const list = VARIANTS[theme] || [];
-      if(!list.length){
-        variantRow.innerHTML = "";
-        return;
-      }
-      const current = getVariant(theme);
-      variantRow.innerHTML = list.map(v=>{
-        const checked = (v.key===current) ? "checked" : "";
-        return `<label><input type="radio" name="themeVariant" value="${v.key}" ${checked}/> ${v.label}</label>`;
-      }).join("");
-      variantRow.querySelectorAll('input[name="themeVariant"]').forEach(r=>{
-        r.onchange = ()=>{
-          if(!r.checked) return;
-          applyTheme(theme, r.value);
-        };
-      });
-    }
-
+    const saved = localStorage.getItem("ou_theme") || "retro";
+    document.body.dataset.theme = saved;
     document.querySelectorAll('input[name="theme"]').forEach(r=>{
-      r.checked = (r.value===themeSaved);
-      r.onchange = ()=>{
-        if(!r.checked) return;
-        const t = r.value;
-        // If switching to a theme with variants, keep last-used variant or fall back to first option.
-        let v = getVariant(t);
-        const list = VARIANTS[t] || [];
-        if(list.length && (!v || v==="default")){
-          v = list[0].key;
-        }
-        applyTheme(t, v);
-        renderVariantRow(t);
-      };
+      r.checked = r.value===saved;
+      r.onchange=()=>{ if(!r.checked) return; document.body.dataset.theme=r.value; localStorage.setItem("ou_theme", r.value); };
     });
-
-    renderVariantRow(themeSaved);
-
 
     const provider=document.getElementById("aiProvider");
     const access=document.getElementById("aiAccess");
